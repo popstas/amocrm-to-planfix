@@ -14,6 +14,10 @@ async function amoGet(baseUrl, path, token) {
     const text = await res.text().catch(() => "");
     throw new Error(`amoCRM request failed: ${res.status} ${text}`);
   }
+  console.log(`status:`, res.status);
+  if (res.status === 204) {
+    return null; // No content to parse for 204 responses
+  }
   return res.json();
 }
 
