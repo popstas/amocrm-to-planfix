@@ -77,6 +77,16 @@ docker run -d \
 
 - `GET /` - Health check endpoint
 - `POST /webhook` - Webhook endpoint for AMOCRM
+## Parsing application/x-www-form-urlencoded
+
+If you log webhook bodies as raw strings, decode them using the helper in `src/formParser.js`:
+
+```js
+const { parseFormEncoded } = require("./src/formParser");
+const data = parseFormEncoded(rawBody);
+console.log(JSON.stringify(data, null, 2));
+```
+
 
 ## Environment Variables
 
