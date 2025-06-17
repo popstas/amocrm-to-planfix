@@ -18,24 +18,33 @@ async function amoGet(baseUrl, path, token) {
 }
 
 async function extractLeadDetails(leadId, baseUrl, token) {
-  const lead = await amoGet(
-    baseUrl,
-    `/api/v4/leads/${leadId}?with=contacts`,
-    token
-  );
-  const detailedContacts = [];
-  const contacts =
-    lead._embedded && Array.isArray(lead._embedded.contacts)
-      ? lead._embedded.contacts
-      : [];
-
-  // Fetch detailed contact information
-  for (const c of contacts) {
-    const full = await amoGet(baseUrl, `/api/v4/contacts/${c.id}`, token);
-    detailedContacts.push(full);
+  try {
+    const lead = await amoGet(
+      baseUrl,
+      `/api/v4/leads/${leadId}?with=contacts`,
+      token
+    );
+    const detailedContacts = [];
+    const contacts =
+      lead._embedded && Array.isArray(lead._embedded.contacts)
+        ? lead._embedded.contacts
+        : [];
+  
+    // Fetch detailed contact information
+    for (const c of contacts) {
+      const full = await amoGet(baseUrl, `/api/v4/contacts/${c.id}`, token);
+      detailedContacts.push(full);
+    }
+  
+    return { lead, contacts, detailedContacts };
   }
-
-  return { lead, contacts, detailedContacts };
+  catch(e) {
+    return {
+      lead: { id: leadId },
+      contacts: [],
+      detailedContacts: [],
+    };
+  }
 }
 
 function extractTaskParams(lead, contacts, detailedContacts, baseUrl) {
@@ -155,6 +164,11 @@ async function processWebhook(inputData) {
     baseUrl,
     token
   );
+
+  if (!lead.name) {
+    console.error(`Failed to retrieve lead details for lead ID: ${leadId}`);
+    // throw new Error(`Unable to process webhook: Lead ${leadId} not found or inaccessible`);
+  }
 
   // Prepare task parameters
   const taskParams = extractTaskParams(
