@@ -3,7 +3,6 @@ npm-debug.log
 .env
 .git
 .gitignore
-.vscode
 *.md
 .gitignore
 .editorconfig
