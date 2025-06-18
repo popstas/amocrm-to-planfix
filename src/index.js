@@ -4,6 +4,15 @@ const cors = require('cors');
 const morgan = require('morgan');
 const { processWebhook } = require('./webhookHandler');
 
+// Prevent the process from crashing on unexpected errors
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception thrown:', err);
+});
+
 const app = express();
 const PORT = process.env.PORT || 3012;
 const WEBHOOK_PATH = process.env.WEBHOOK_PATH || '/webhook';
