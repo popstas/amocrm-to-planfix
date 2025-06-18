@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const { processWebhook } = require("./webhookHandler");
+const { addWebhook, processQueue } = require("./queue");
 
 // Prevent the process from crashing on unexpected errors
 process.on("unhandledRejection", (reason, promise) => {
@@ -34,27 +34,11 @@ app.get("/", (req, res) => {
 // Webhook endpoint
 app.post(WEBHOOK_PATH, async (req, res) => {
   try {
-    const inputData = {
-      body: req.body,
-      amocrm_token: process.env.AMOCRM_TOKEN,
-      agent_token: process.env.AGENT_TOKEN,
-    };
-
-    // need to answer in 2 seconds
-    if (process.env.NODE_ENV === "production") {
-      res.status(200).json({ success: true });
-    }
-    const result = await processWebhook(inputData);
-    if (process.env.NODE_ENV !== "production") {
-      res.status(200).json({ success: true, result });
-    }
+    addWebhook(req.body);
+    res.status(200).json({ success: true });
   } catch (error) {
-    console.error("Error processing webhook:", error);
-    // res.status(500).json({
-    //   success: false,
-    //   error: error.message,
-    //   stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    // });
+    console.error("Error queueing webhook:", error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -71,6 +55,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   console.log("Environment:", process.env.NODE_ENV || "development");
+  processQueue().catch((e) => console.error('Startup queue error:', e));
 });
 
 module.exports = app; // for testing
