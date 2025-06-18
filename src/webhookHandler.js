@@ -53,7 +53,7 @@ async function extractLeadDetails(leadId, baseUrl, token) {
 
 function extractTaskParams(lead, contacts, detailedContacts, baseUrl) {
   const leadId = lead.id;
-  const leadName = lead.name || "New Lead";
+  const leadName = lead.name || `Lead ${lead.id}`;
   const title =
     leadName === lead.name || !lead.name
       ? leadName
@@ -96,6 +96,7 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl) {
     : [];
 
   const customLines = [];
+  const fields = {};
   for (const f of customFields) {
     const name = f.field_name || f.field_code;
     if (!name) continue;
@@ -103,8 +104,19 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl) {
       ? f.values.map((v) => v.value).filter(Boolean)
       : [];
     if (values.length) {
+      fields[name] = values.join(", ");
       customLines.push(`${name}: ${values.join(", ")}`);
     }
+  }
+  params.fields = fields;
+  if (params.fields['utm_source']) {
+    params.leadSource = params.fields['utm_source'];
+  }
+  else if (params.fields['Источник']) {
+    params.leadSource = params.fields['Источник'];
+  }
+  if (params.fields['Теги']) {
+    params.tags = params.fields['Теги'].split(', ');
   }
 
   const descriptionParts = [];
