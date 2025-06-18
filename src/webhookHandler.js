@@ -144,11 +144,16 @@ async function createPlanfixTask(taskParams, agentToken, createTaskUrl) {
   return res.json();
 }
 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function processWebhook(inputData) {
   const body = inputData.body || {};
   const token = inputData.amocrm_token || process.env.AMOCRM_TOKEN;
   const agentToken = inputData.agent_token || process.env.AGENT_TOKEN;
   const createTaskUrl = process.env.CREATE_TASK_URL;
+  const webhookDelay = parseInt(process.env.WEBHOOK_DELAY || '5', 10) * 1000; // Convert to milliseconds
 
   if (!token) throw new Error("AMOCRM access token is required");
   if (!agentToken) throw new Error("AGENT_TOKEN is required");
@@ -162,6 +167,12 @@ async function processWebhook(inputData) {
     throw new Error("Invalid webhook body: missing baseUrl or leadId");
   }
 
+  // Add delay before processing
+  if (process.env.NODE_ENV === "production") {
+    console.log(`Waiting ${webhookDelay/1000} seconds before processing lead...`);
+    await delay(webhookDelay);
+  }
+  
   // Extract lead and contact details
   const { lead, contacts, detailedContacts } = await extractLeadDetails(
     leadId,
