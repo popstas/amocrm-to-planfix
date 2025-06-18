@@ -6,6 +6,8 @@ const { processWebhook } = require('./webhookHandler');
 
 const DB_DIR = path.join(__dirname, '..', 'data');
 const DB_PATH = path.join(DB_DIR, 'webhooks.db');
+const MAX_ATTEMPTS = 5;
+const DELAY = 1000;
 
 fs.mkdirSync(DB_DIR, { recursive: true });
 
@@ -45,6 +47,7 @@ function addWebhook(body) {
     'SELECT 1 FROM queue WHERE checksum=? UNION SELECT 1 FROM processed WHERE checksum=?'
   ).get(sum, sum);
   if (exists) {
+    console.log('Duplicate webhook:', body);
     return false; // duplicate
   }
   db.prepare(
@@ -60,8 +63,8 @@ async function processQueue() {
   processing = true;
   try {
     let row = db
-      .prepare('SELECT * FROM queue WHERE attempts < 5 ORDER BY id LIMIT 1')
-      .get();
+      .prepare('SELECT * FROM queue WHERE attempts < ? ORDER BY id LIMIT 1')
+      .get(MAX_ATTEMPTS);
     while (row) {
       try {
         const data = JSON.parse(row.body);
@@ -82,10 +85,10 @@ async function processQueue() {
           'UPDATE queue SET attempts=attempts+1, last_error=? WHERE id=?'
         ).run(err.message, row.id);
       }
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, DELAY));
       row = db
-        .prepare('SELECT * FROM queue WHERE attempts < 5 ORDER BY id LIMIT 1')
-        .get();
+        .prepare('SELECT * FROM queue WHERE attempts < ? ORDER BY id LIMIT 1')
+        .get(MAX_ATTEMPTS);
     }
   } finally {
     processing = false;
