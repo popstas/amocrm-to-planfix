@@ -65,3 +65,5 @@ bower_components
 .Trashes
 ehthumbs.db
 Thumbs.db
+data/*.db
+data/

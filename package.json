@@ -8,11 +8,17 @@
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["amocrm", "planfix", "webhook", "integration"],
+  "keywords": [
+    "amocrm",
+    "planfix",
+    "webhook",
+    "integration"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "better-sqlite3": "^11.9.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
