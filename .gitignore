@@ -66,5 +66,3 @@ bower_components
 ehthumbs.db
 Thumbs.db
 data/
-!data/body-test.json
-

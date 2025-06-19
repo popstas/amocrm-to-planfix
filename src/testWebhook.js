@@ -6,6 +6,11 @@ const { processWebhook } = require('./webhookHandler');
 async function main() {
   const argPath = process.argv[2];
   const bodyPath = argPath ? path.resolve(argPath) : path.join(__dirname, '..', 'data', 'body-test.json');
+  if (!fs.existsSync(bodyPath)) {
+    console.error(`File not found: ${bodyPath}`);
+    process.exitCode = 1;
+    return;
+  }
 
   const bodyData = fs.readFileSync(bodyPath, 'utf8');
   const body = JSON.parse(bodyData);
