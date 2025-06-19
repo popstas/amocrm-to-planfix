@@ -6,7 +6,7 @@ const { processWebhook } = require('./webhookHandler');
 
 const DB_DIR = path.join(__dirname, '..', 'data');
 const DB_PATH = path.join(DB_DIR, 'webhooks.db');
-const MAX_ATTEMPTS = 5;
+const MAX_ATTEMPTS = 12;
 const DELAY = 1000;
 
 fs.mkdirSync(DB_DIR, { recursive: true });
@@ -75,7 +75,7 @@ async function processQueue() {
       .get(MAX_ATTEMPTS);
     while (row) {
       if (row.attempts > 0) {
-        const sleepTime = DELAY * (row.attempts ** 2) * 2; // 2, 8, 18, 32, 50
+        const sleepTime = DELAY * (row.attempts ** 3) * 2; // 2, 16, 54, 128, 250, 432, 686, 1024, 1458, 2000
         console.log(`Retrying row ${row.id}: attempts=${row.attempts}, sleep=${sleepTime}ms`);
         await new Promise((r) => setTimeout(r, sleepTime));
       }
