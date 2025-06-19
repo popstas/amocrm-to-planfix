@@ -62,10 +62,23 @@ async function processQueue() {
   if (processing) return;
   processing = true;
   try {
+    // Log queue size if greater than 1
+    const queueSize = db.prepare('SELECT COUNT(*) as count FROM queue WHERE attempts < ?').get(MAX_ATTEMPTS).count;
+    if (queueSize > 1) {
+      console.log(`Queue size: ${queueSize}`);
+    }
+    
     let row = db
-      .prepare('SELECT * FROM queue WHERE attempts < ? ORDER BY id LIMIT 1')
+      .prepare(
+        'SELECT * FROM queue WHERE attempts < ? ORDER BY attempts, created_at LIMIT 1'
+      )
       .get(MAX_ATTEMPTS);
     while (row) {
+      if (row.attempts > 0) {
+        const sleepTime = DELAY * (row.attempts ** 2) * 2; // 2, 8, 18, 32, 50
+        console.log(`Retrying row ${row.id}: attempts=${row.attempts}, sleep=${sleepTime}ms`);
+        await new Promise((r) => setTimeout(r, sleepTime));
+      }
       try {
         const data = JSON.parse(row.body);
         const response = await processWebhook({ body: data });
@@ -87,7 +100,9 @@ async function processQueue() {
       }
       await new Promise((r) => setTimeout(r, DELAY));
       row = db
-        .prepare('SELECT * FROM queue WHERE attempts < ? ORDER BY id LIMIT 1')
+        .prepare(
+          'SELECT * FROM queue WHERE attempts < ? ORDER BY attempts, created_at LIMIT 1'
+        )
         .get(MAX_ATTEMPTS);
     }
   } finally {
