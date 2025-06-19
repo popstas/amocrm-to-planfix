@@ -16,18 +16,22 @@ async function amoGet(baseUrl, path, token) {
   }
   console.log(`status:`, res.status);
   if (res.status === 204) {
-    return null; // No content to parse for 204 responses
+    return { status: 204 }; // No content to parse for 204 responses
   }
   return res.json();
 }
 
-async function extractLeadDetails(leadId, baseUrl, token) {
+async function extractLeadDetails(leadOrig, baseUrl, token) {
   try {
     const lead = await amoGet(
       baseUrl,
-      `/api/v4/leads/${leadId}?with=contacts`,
+      `/api/v4/leads/${leadOrig.id}?with=contacts`,
       token
     );
+    const deleted = lead.status === 204;
+    if (deleted) {
+      return { lead: leadOrig, contacts: [], detailedContacts: [], deleted };
+    }
     const detailedContacts = [];
     const contacts =
       lead._embedded && Array.isArray(lead._embedded.contacts)
@@ -40,13 +44,14 @@ async function extractLeadDetails(leadId, baseUrl, token) {
       detailedContacts.push(full);
     }
   
-    return { lead, contacts, detailedContacts };
+    return { lead, contacts, detailedContacts, deleted };
   }
   catch(e) {
     return {
-      lead: { id: leadId },
+      lead: leadOrig,
       contacts: [],
       detailedContacts: [],
+      deleted: false,
     };
   }
 }
@@ -169,10 +174,11 @@ async function processWebhook(inputData) {
   if (!token) throw new Error("AMOCRM access token is required");
   if (!agentToken) throw new Error("AGENT_TOKEN is required");
 
-  console.log('processWebhook, lead: ', body.leads?.add?.[0], 'body: ', JSON.stringify(body));
+  console.log('processWebhook, lead: ', body.leads?.add?.[0]?.id, 'body: ', JSON.stringify(body));
   // Access the nested properties directly from the object structure
   const baseUrl = (body.account?._links?.self || '').replace(/\/$/, '');
-  const leadId = body.leads?.add?.[0]?.id;
+  const leadShort = body.leads?.add?.[0];
+  const leadId = leadShort?.id;
 
   if (!baseUrl || !leadId) {
     throw new Error("Invalid webhook body: missing baseUrl or leadId");
@@ -185,13 +191,13 @@ async function processWebhook(inputData) {
   }
   
   // Extract lead and contact details
-  const { lead, contacts, detailedContacts } = await extractLeadDetails(
-    leadId,
+  const { lead, contacts, detailedContacts, deleted } = await extractLeadDetails(
+    leadShort,
     baseUrl,
     token
   );
 
-  if (!lead.name) {
+  if (lead.contacts.length === 0) {
     console.error(`Failed to retrieve lead details for lead ID: ${leadId}`);
   }
 
@@ -203,17 +209,18 @@ async function processWebhook(inputData) {
     baseUrl
   );
 
+  if (deleted) {
+    console.error(`Lead ${leadId} deleted`);
+    return { body, lead, taskParams, task: null };
+  }
+
   // Create task in Planfix
   if (createTaskUrl) {
     const task = await createPlanfixTask(taskParams, agentToken, createTaskUrl);
-    if (!lead.name) {
-      throw new Error(`Lead ${leadId} has no name`);
+    if (lead.contacts.length === 0) {
+      throw new Error(`Lead ${leadId} has no contacts`);
     }
     return { body, lead, taskParams, task };
-  }
-
-  if (!lead.name) {
-    throw new Error(`Lead ${leadId} has no name`);
   }
 
   return { body, lead, taskParams };
