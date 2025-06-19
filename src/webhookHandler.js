@@ -169,7 +169,7 @@ async function processWebhook(inputData) {
   if (!token) throw new Error("AMOCRM access token is required");
   if (!agentToken) throw new Error("AGENT_TOKEN is required");
 
-  console.log('body: ', JSON.stringify(body));
+  console.log('processWebhook, lead: ', body.leads?.add?.[0], 'body: ', JSON.stringify(body));
   // Access the nested properties directly from the object structure
   const baseUrl = (body.account?._links?.self || '').replace(/\/$/, '');
   const leadId = body.leads?.add?.[0]?.id;
