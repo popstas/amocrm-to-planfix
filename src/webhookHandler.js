@@ -115,14 +115,13 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl) {
   else if (params.fields['Источник']) {
     params.leadSource = params.fields['Источник'];
   }
-  if (params.fields['Теги']) {
-    params.tags = params.fields['Теги'].split(', ');
-  }
 
   const descriptionParts = [];
   if (tagNames.length) {
-    descriptionParts.push(`Теги: ${tagNames.join(", ")}`);
+    params.tags = tagNames;
+    descriptionParts.push("", "Теги:", tagNames.join(", "));
   }
+  
   if (customLines.length) {
     descriptionParts.push("", "Поля:", ...customLines);
   }
