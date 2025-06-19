@@ -1,0 +1,4 @@
+{
+  "account": { "_links": { "self": "https://example.amocrm.com" } },
+  "leads": { "add": [ { "id": 123456 } ] }
+}
