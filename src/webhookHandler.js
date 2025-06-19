@@ -194,7 +194,6 @@ async function processWebhook(inputData) {
 
   if (!lead.name) {
     console.error(`Failed to retrieve lead details for lead ID: ${leadId}`);
-    // throw new Error(`Unable to process webhook: Lead ${leadId} not found or inaccessible`);
   }
 
   // Prepare task parameters
@@ -208,7 +207,14 @@ async function processWebhook(inputData) {
   // Create task in Planfix
   if (createTaskUrl) {
     const task = await createPlanfixTask(taskParams, agentToken, createTaskUrl);
+    if (!lead.name) {
+      throw new Error(`Lead ${leadId} has no name`);
+    }
     return { body, lead, taskParams, task };
+  }
+
+  if (!lead.name) {
+    throw new Error(`Lead ${leadId} has no name`);
   }
 
   return { body, lead, taskParams };
