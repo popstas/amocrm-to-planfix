@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-const ProxyAgent = require("proxy-agent");
+const { ProxyAgent } = require("proxy-agent");
 
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
