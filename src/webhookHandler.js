@@ -21,6 +21,18 @@ async function amoGet(baseUrl, path, token) {
   return res.json();
 }
 
+async function getResponsibleEmail(userId, baseUrl, token) {
+  if (!userId) return undefined;
+  try {
+    const user = await amoGet(baseUrl, `/api/v4/users/${userId}`, token);
+    if (user.status === 204) return undefined;
+    return user.email || user.login;
+  } catch (e) {
+    console.error(`Failed to fetch user ${userId}:`, e.message);
+    return undefined;
+  }
+}
+
 async function extractLeadDetails(leadOrig, baseUrl, token) {
   try {
     const lead = await amoGet(
@@ -56,7 +68,7 @@ async function extractLeadDetails(leadOrig, baseUrl, token) {
   }
 }
 
-function extractTaskParams(lead, contacts, detailedContacts, baseUrl) {
+function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEmail) {
   const leadId = lead.id;
   const leadName = lead.name || `Lead ${lead.id}`;
   const title =
@@ -133,6 +145,9 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl) {
   descriptionParts.push("", `URL: ${baseUrl}/leads/detail/${leadId}`);
 
   params.description = descriptionParts.join("\n");
+  if (managerEmail) {
+    params.managerEmail = managerEmail;
+  }
   return params;
 }
 
@@ -197,7 +212,13 @@ async function processWebhook(inputData) {
     token
   );
 
-  if (lead.contacts.length === 0) {
+  const managerEmail = await getResponsibleEmail(
+    lead.responsible_user_id || leadShort.responsible_user_id,
+    baseUrl,
+    token
+  );
+
+  if (contacts.length === 0) {
     console.error(`Failed to retrieve lead details for lead ID: ${leadId}`);
   }
 
@@ -206,7 +227,8 @@ async function processWebhook(inputData) {
     lead,
     contacts,
     detailedContacts,
-    baseUrl
+    baseUrl,
+    managerEmail
   );
 
   if (deleted) {
@@ -217,7 +239,7 @@ async function processWebhook(inputData) {
   // Create task in Planfix
   if (createTaskUrl) {
     const task = await createPlanfixTask(taskParams, agentToken, createTaskUrl);
-    if (lead.contacts.length === 0) {
+    if (contacts.length === 0) {
       throw new Error(`Lead ${leadId} has no contacts`);
     }
     return { body, lead, taskParams, task };
