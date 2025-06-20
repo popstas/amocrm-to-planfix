@@ -1,14 +1,19 @@
 const fetch = require("node-fetch");
+const ProxyAgent = require("proxy-agent");
 
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
-  const res = await fetch(`${baseUrl}${path}`, {
+  const options = {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-  });
+  };
+  if (process.env.PROXY_URL) {
+    options.agent = new ProxyAgent(process.env.PROXY_URL);
+  }
+  const res = await fetch(`${baseUrl}${path}`, options);
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
