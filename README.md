@@ -108,6 +108,7 @@ console.log(JSON.stringify(data, null, 2));
 | `AGENT_TOKEN` | Yes | Planfix agent token |
 | `CREATE_TASK_URL` | No | Planfix task creation endpoint (default: provided URL) |
 | `WEBHOOK_PATH` | No | Webhook path to listen on (default: `/webhook`) |
+| `PROXY_URL` | No | Proxy URL for AMOCRM requests |
 
 ## License
 
