@@ -2,6 +2,7 @@ const fetch = require("node-fetch");
 
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
+  // throw new Error(`amoCRM request failed: test error`);
   const res = await fetch(`${baseUrl}${path}`, {
     method: "GET",
     headers: {
@@ -28,7 +29,7 @@ async function getResponsibleEmail(userId, baseUrl, token) {
     if (user.status === 204) return undefined;
     return user.email || user.login;
   } catch (e) {
-    console.error(`Failed to fetch user ${userId}:`, e.message);
+    console.error(`Failed to fetch user ${userId}:`, e.message.replace(/[\n|\r]+/g, " "));
     return undefined;
   }
 }
@@ -104,18 +105,16 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
     }
   }
 
-  const tagNames = Array.isArray(lead._embedded?.tags)
-    ? lead._embedded.tags.map((t) => t.name).filter(Boolean)
+  const tags = lead._embedded?.tags || lead.tags || [];
+  const tagNames = Array.isArray(tags)
+    ? tags.map((t) => t.name).filter(Boolean)
     : [];
 
-  const customFields = Array.isArray(lead.custom_fields_values)
-    ? lead.custom_fields_values
-    : [];
-
+  const customFields = lead.custom_fields_values || lead.custom_fields || [];
   const customLines = [];
   const fields = {};
   for (const f of customFields) {
-    const name = f.field_name || f.field_code;
+    const name = f.field_name || f.name || f.field_code;
     if (!name) continue;
     const values = Array.isArray(f.values)
       ? f.values.map((v) => v.value).filter(Boolean)
@@ -179,7 +178,7 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function processWebhook(inputData) {
+async function processWebhook(inputData, queueRow) {
   const body = inputData.body || {};
   const token = inputData.amocrm_token || process.env.AMOCRM_TOKEN;
   const agentToken = inputData.agent_token || process.env.AGENT_TOKEN;
@@ -220,6 +219,10 @@ async function processWebhook(inputData) {
 
   if (contacts.length === 0) {
     console.error(`Failed to retrieve lead details for lead ID: ${leadId}`);
+    // create task first, then waiting for contacts appears 
+    if (queueRow.attempts > 0) {
+      throw new Error(`Failed to retrieve lead details for lead ID: ${leadId}`);
+    }
   }
 
   // Prepare task parameters
