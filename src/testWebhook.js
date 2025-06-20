@@ -22,7 +22,7 @@ async function main() {
     const result = await processWebhook({ body });
     console.log(
       "Webhook processed successfully:",
-      JSON.stringify(result, null, 2)
+      JSON.stringify(result)
     );
   } catch (err) {
     console.error("Error processing webhook:", err);
