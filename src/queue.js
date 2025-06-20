@@ -58,7 +58,7 @@ function addWebhook(body) {
     )
     .get(sum, sum);
   if (exists) {
-    console.log("Duplicate webhook:", body);
+    console.log("Duplicate webhook:", JSON.stringify(body));
     return false; // duplicate
   }
   db.prepare(
@@ -94,7 +94,7 @@ function scheduleNext() {
 async function handleRow(row) {
   try {
     const data = JSON.parse(row.body);
-    const response = await processWebhook({ body: data });
+    const response = await processWebhook({ body: data, row });
     db.prepare(
       "INSERT INTO processed (checksum, body, created_at, processed_at, attempts, response) VALUES (?,?,?,?,?,?)"
     ).run(
