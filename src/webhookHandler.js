@@ -218,7 +218,7 @@ async function processWebhook(inputData) {
     token
   );
 
-  if (lead.contacts.length === 0) {
+  if (contacts.length === 0) {
     console.error(`Failed to retrieve lead details for lead ID: ${leadId}`);
   }
 
@@ -239,7 +239,7 @@ async function processWebhook(inputData) {
   // Create task in Planfix
   if (createTaskUrl) {
     const task = await createPlanfixTask(taskParams, agentToken, createTaskUrl);
-    if (lead.contacts.length === 0) {
+    if (contacts.length === 0) {
       throw new Error(`Lead ${leadId} has no contacts`);
     }
     return { body, lead, taskParams, task };
