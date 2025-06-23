@@ -100,6 +100,12 @@ function scheduleNext() {
       nextTimer = null;
       processQueue().catch((e) => console.error("Queue processing error:", e));
     }, delay);
+  } else {
+    // console.log('No rows to process, scheduling next check in 5 seconds...');
+    nextTimer = setTimeout(() => {
+      nextTimer = null;
+      processQueue().catch((e) => console.error("Queue processing error:", e));
+    }, 5000);
   }
 }
 
