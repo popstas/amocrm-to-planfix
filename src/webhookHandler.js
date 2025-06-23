@@ -221,14 +221,6 @@ async function processWebhook(inputData, queueRow) {
     token
   );
 
-  if (contacts.length === 0) {
-    console.error(`Failed to retrieve lead details for lead ID: ${leadId}`);
-    // create task first, then waiting for contacts appears 
-    if (queueRow.attempts > 0) {
-      throw new Error(`Failed to retrieve lead details for lead ID: ${leadId}`);
-    }
-  }
-
   // Prepare task parameters
   const taskParams = extractTaskParams(
     lead,
@@ -241,6 +233,14 @@ async function processWebhook(inputData, queueRow) {
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);
     return { body, lead, taskParams, task: null };
+  }
+
+  if (contacts.length === 0) {
+    console.error(`Failed to retrieve lead details for lead ID: ${leadId}`);
+    // create task first, then waiting for contacts appears 
+    if (queueRow.attempts > 0) {
+      throw new Error(`Failed to retrieve lead details for lead ID: ${leadId}`);
+    }
   }
 
   // Create task in Planfix

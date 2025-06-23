@@ -122,6 +122,7 @@ async function handleRow(row) {
     const attempts = row.attempts + 1;
     const sleepTime = DELAY * row.attempts ** 3 * 2;
     const nextAttempt = Date.now() + sleepTime;
+    console.log(`Error processing row ${row.id}:`, err.message.replace(/\n/g, " "));
     console.log(
       `Retrying row ${row.id}: attempts=${attempts - 1}, sleep=${
         sleepTime / 1000
