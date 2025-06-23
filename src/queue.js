@@ -50,7 +50,7 @@ function checksum(obj) {
   return crypto.createHash("sha256").update(str).digest("hex");
 }
 
-function addWebhook(body) {
+async function addWebhook(body, retries = 3, interval = 5000) {
   const sum = checksum(body);
   const exists = db
     .prepare(
@@ -61,11 +61,23 @@ function addWebhook(body) {
     console.log("Duplicate webhook:", JSON.stringify(body));
     return false; // duplicate
   }
-  db.prepare(
-    "INSERT INTO queue (checksum, body, created_at, next_attempt) VALUES (?,?,?,?)"
-  ).run(sum, JSON.stringify(body), Date.now(), Date.now());
-  processQueue().catch((e) => console.error("Queue processing error:", e));
-  return true;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      db.prepare(
+        "INSERT INTO queue (checksum, body, created_at, next_attempt) VALUES (?,?,?,?)"
+      ).run(sum, JSON.stringify(body), Date.now(), Date.now());
+      return true;
+    } catch (err) {
+      console.error(`Failed to write webhook (attempt ${attempt}):`, err.message);
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, interval));
+      } else {
+        throw err;
+      }
+    }
+  }
+  return false;
 }
 
 let processing = false;

@@ -37,12 +37,15 @@ This service receives webhooks from AMOCRM when new leads are created and forwar
 npm run dev
 ```
 
-The server will start on `http://localhost:3012`
+The ingest server will start on `http://localhost:3012`
 
 ### Production
 
+Run the queue worker and the ingest service separately:
+
 ```bash
-npm start
+npm start        # start the worker
+npm run ingest   # start the webhook collector
 ```
 
 ## Docker
@@ -53,15 +56,15 @@ npm start
 docker build -t amocrm-to-planfix .
 ```
 
-### Run the Docker container
+### Docker Compose
+
+To run the ingest service, worker and monitoring stack use docker-compose:
 
 ```bash
-docker run -d \
-  --name amocrm-to-planfix \
-  -p 3012:3012 \
-  --env-file .env \
-  amocrm-to-planfix
+docker compose up -d
 ```
+
+Grafana will be available on `http://localhost:3000` and Loki on port `3100`.
 
 ## Webhook Configuration in AMOCRM
 

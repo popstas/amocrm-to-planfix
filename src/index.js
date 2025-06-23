@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const { addWebhook, processQueue } = require("./queue");
+const { addWebhook } = require("./queue");
 
 // Prevent the process from crashing on unexpected errors
 process.on("unhandledRejection", (reason, promise) => {
@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 // Webhook endpoint
 app.post(WEBHOOK_PATH, async (req, res) => {
   try {
-    addWebhook(req.body);
+    await addWebhook(req.body);
     res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error queueing webhook:", error);
@@ -57,7 +57,6 @@ if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     console.log("Environment:", process.env.NODE_ENV || "development");
-    processQueue().catch((e) => console.error("Startup queue error:", e));
   });
 }
 
