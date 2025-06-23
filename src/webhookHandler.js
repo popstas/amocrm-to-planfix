@@ -1,5 +1,7 @@
 const fetch = require("node-fetch");
 const { ProxyAgent } = require("proxy-agent");
+const fs = require("fs");
+const path = require("path");
 
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
@@ -36,6 +38,53 @@ async function getResponsibleEmail(userId, baseUrl, token) {
     console.error(`Failed to fetch user ${userId}:`, e.message.replace(/[\n|\r]+/g, " "));
     return undefined;
   }
+}
+
+const PIPELINES_CACHE = path.join(__dirname, "..", "data", "pipelines.json");
+const PIPELINES_TTL = 24 * 60 * 60 * 1000; // one day
+
+function loadPipelinesFromCache() {
+  try {
+    const raw = fs.readFileSync(PIPELINES_CACHE, "utf8");
+    const data = JSON.parse(raw);
+    if (Date.now() - data.updated < PIPELINES_TTL && data.pipelines) {
+      return data.pipelines;
+    }
+  } catch (e) {
+    // ignore cache read errors
+  }
+  return null;
+}
+
+async function fetchPipelines(baseUrl, token) {
+  try {
+    const data = await amoGet(baseUrl, "/api/v4/leads/pipelines", token);
+    const list = data._embedded?.pipelines || [];
+    const map = {};
+    for (const p of list) {
+      if (p.id && p.name) {
+        map[p.id] = p.name;
+      }
+    }
+    fs.mkdirSync(path.dirname(PIPELINES_CACHE), { recursive: true });
+    fs.writeFileSync(
+      PIPELINES_CACHE,
+      JSON.stringify({ updated: Date.now(), pipelines: map }, null, 2)
+    );
+    return map;
+  } catch (e) {
+    console.error("Failed to fetch pipelines:", e.message.replace(/[\n|\r]+/g, " "));
+    return {};
+  }
+}
+
+async function getPipelineName(pipelineId, baseUrl, token) {
+  if (!pipelineId) return undefined;
+  let map = loadPipelinesFromCache();
+  if (!map || !map[pipelineId]) {
+    map = await fetchPipelines(baseUrl, token);
+  }
+  return map[pipelineId];
 }
 
 async function extractLeadDetails(leadOrig, baseUrl, token) {
@@ -221,6 +270,12 @@ async function processWebhook(inputData, queueRow) {
     token
   );
 
+  const pipelineName = await getPipelineName(
+    lead.pipeline_id || leadShort.pipeline_id,
+    baseUrl,
+    token
+  );
+
   // Prepare task parameters
   const taskParams = extractTaskParams(
     lead,
@@ -229,6 +284,9 @@ async function processWebhook(inputData, queueRow) {
     baseUrl,
     managerEmail
   );
+  if (pipelineName) {
+    taskParams.pipeline = pipelineName;
+  }
 
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);
