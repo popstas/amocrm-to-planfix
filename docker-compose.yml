@@ -1,0 +1,42 @@
+version: '3'
+services:
+  ingest:
+    build: .
+    command: npm run ingest
+    volumes:
+      - ./data:/usr/src/app/data
+    ports:
+      - "3012:3012"
+    environment:
+      - NODE_ENV=production
+
+  worker:
+    build: .
+    command: npm start
+    volumes:
+      - ./data:/usr/src/app/data
+    environment:
+      - NODE_ENV=production
+
+  loki:
+    image: grafana/loki:2.9.1
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:2.9.1
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
