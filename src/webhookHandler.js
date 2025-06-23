@@ -151,6 +151,9 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
       if (f.field_code === "EMAIL" && Array.isArray(f.values) && f.values[0]) {
         params.email = f.values[0].value;
       }
+      if (f.field_name === "TelegramUsername_WZ" && Array.isArray(f.values) && f.values[0]) {
+        params.telegram = f.values[0].value;
+      }
       if (f.field_code === "IM" && Array.isArray(f.values)) {
         const tg = f.values.find((v) => v.enum_code === "TELEGRAM");
         if (tg) params.telegram = tg.value;
