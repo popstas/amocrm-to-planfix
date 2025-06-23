@@ -249,6 +249,9 @@ async function processWebhook(inputData, queueRow) {
     if (contacts.length === 0) {
       throw new Error(`Lead ${leadId} has no contacts`);
     }
+    if (task?.url) {
+      console.log('result:', task.url);
+    }
     return { body, lead, taskParams, task };
   }
 
