@@ -304,6 +304,10 @@ async function processWebhook(inputData, queueRow) {
     }
   }
 
+  if (process.env.MANAGER_EMAIL) {
+    taskParams.managerEmail = process.env.MANAGER_EMAIL;
+  }
+
   // Create task in Planfix
   if (createTaskUrl) {
     const task = await createPlanfixTask(taskParams, agentToken, createTaskUrl);
