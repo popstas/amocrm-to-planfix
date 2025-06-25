@@ -129,7 +129,7 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
     leadName === lead.name || !lead.name
       ? leadName
       : `${leadName} (${lead.name})`;
-  const params = { title };
+  const params = { title, leadId };
 
   const mainContactId = contacts.find((c) => c.is_main)?.id;
   const mainContact =
