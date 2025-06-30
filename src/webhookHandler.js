@@ -316,6 +316,11 @@ async function processWebhook(inputData, queueRow) {
     }
     if (task?.url) {
       console.log('result:', task.url);
+    } else {
+      console.error('Error: failed to create task');
+      if (task.error) {
+        console.error('Error:', task.error);
+      }
     }
     return { body, lead, taskParams, task };
   }
