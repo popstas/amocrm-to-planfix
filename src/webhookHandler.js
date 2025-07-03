@@ -129,7 +129,7 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
     leadName === lead.name || !lead.name
       ? leadName
       : `${leadName} (${lead.name})`;
-  const params = { title, leadId };
+  const params = { leadId };
 
   const mainContactId = contacts.find((c) => c.is_main)?.id;
   const mainContact =
@@ -189,6 +189,7 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
   }
 
   const descriptionParts = [];
+
   if (tagNames.length) {
     params.tags = tagNames;
     descriptionParts.push("", "Теги:", tagNames.join(", "));
@@ -197,12 +198,14 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
   if (customLines.length) {
     descriptionParts.push("", "Поля:", ...customLines);
   }
-  descriptionParts.push("", `URL: ${baseUrl}/leads/detail/${leadId}`);
+
+  descriptionParts.push("", `Название: ${title}`);
+  if (managerEmail) {
+    descriptionParts.push(`Менеджер: ${managerEmail}`);
+  }
+  descriptionParts.push(`URL: ${baseUrl}/leads/detail/${leadId}`);
 
   params.description = descriptionParts.join("\n");
-  if (managerEmail) {
-    params.managerEmail = managerEmail;
-  }
   return params;
 }
 
