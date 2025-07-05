@@ -26,7 +26,7 @@ This service receives webhooks from AMOCRM when new leads are created and forwar
    CREATE_TASK_URL=https://bot-dev.stable.popstas.ru/agent/planfix/tool/planfix_create_task
    PORT=3012
    NODE_ENV=development
-   WEBHOOK_PATH=/webhooks/266756d043492880d04d1f7e82d75b0e
+   CONFIG=data/config.yml
    ```
 
 ## Running the Application
@@ -71,7 +71,7 @@ Grafana will be available on `http://localhost:3000` and Loki on port `3100`.
 1. Go to AMOCRM settings
 2. Navigate to Webhooks
 3. Add a new webhook with the following settings:
-   - URL: `https://your-domain.com/webhook` (or `http://localhost:3012/webhook` for local testing)
+   - URL: path from your `config.yml` (for example `http://localhost:3012/amocrm`)
    - Events: Select "Lead added"
    - HTTP Method: POST
    - Content Type: application/x-www-form-urlencoded
@@ -79,7 +79,7 @@ Grafana will be available on `http://localhost:3000` and Loki on port `3100`.
 ## API Endpoints
 
 - `GET /` - Health check endpoint
-- `POST /webhook` - Webhook endpoint for AMOCRM
+ - Webhook endpoints defined in `config.yml`
 
 ## Testing Webhooks
 
@@ -90,16 +90,22 @@ To specify another file, pass the path as an argument:
 npm run test-webhook -- <path-to-json>
 ```
 
-## Parsing application/x-www-form-urlencoded
+## Configuration
 
-If you log webhook bodies as raw strings, decode them using the helper in `src/formParser.js`:
+The application reads settings from `config.yml`. Override the location with the `CONFIG` environment variable.
+Example:
 
-```js
-const { parseFormEncoded } = require("./src/formParser");
-const data = parseFormEncoded(rawBody);
-console.log(JSON.stringify(data, null, 2));
+```yml
+webhooks:
+  - name: amocrm
+    webhook_path: /amocrm
+queue:
+  max_attempts: 12
+  start_delay: 1000
+target:
+  token: your_planfix_token
+  url: https://planfix.example.com
 ```
-
 
 ## Environment Variables
 
@@ -110,7 +116,7 @@ console.log(JSON.stringify(data, null, 2));
 | `AMOCRM_TOKEN` | Yes | AMOCRM OAuth access token |
 | `AGENT_TOKEN` | Yes | Planfix agent token |
 | `CREATE_TASK_URL` | No | Planfix task creation endpoint (default: provided URL) |
-| `WEBHOOK_PATH` | No | Webhook path to listen on (default: `/webhook`) |
+| `CONFIG` | No | Path to `config.yml` (default: `data/config.yml`) |
 | `PROXY_URL` | No | Proxy URL for AMOCRM requests |
 
 ## License
