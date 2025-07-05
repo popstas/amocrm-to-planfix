@@ -1,7 +1,9 @@
-const fetch = require("node-fetch");
-const { ProxyAgent } = require("proxy-agent");
-const fs = require("fs");
-const path = require("path");
+// @ts-nocheck
+import fetch from 'node-fetch';
+import { ProxyAgent } from 'proxy-agent';
+import fs from 'fs';
+import path from 'path';
+import { config } from '../config.js';
 
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
@@ -12,8 +14,9 @@ async function amoGet(baseUrl, path, token) {
       "Content-Type": "application/json",
     },
   };
-  if (process.env.PROXY_URL) {
-    options.agent = new ProxyAgent(process.env.PROXY_URL);
+  const proxy = process.env.PROXY_URL || config.proxy_url;
+  if (proxy) {
+    options.agent = new ProxyAgent(proxy);
   }
   const res = await fetch(`${baseUrl}${path}`, options);
 
@@ -239,10 +242,11 @@ function delay(ms) {
 
 async function processWebhook(inputData, queueRow) {
   const body = inputData.body || {};
-  const token = inputData.amocrm_token || process.env.AMOCRM_TOKEN;
-  const agentToken = inputData.agent_token || process.env.AGENT_TOKEN;
-  const createTaskUrl = process.env.CREATE_TASK_URL;
-  const webhookDelay = parseInt(process.env.WEBHOOK_DELAY || '5', 10) * 1000; // Convert to milliseconds
+  const webhookConf = inputData.webhook;
+  const token = inputData.amocrm_token || webhookConf?.token || process.env.AMOCRM_TOKEN;
+  const agentToken = inputData.agent_token || config.target?.token || process.env.AGENT_TOKEN;
+  const createTaskUrl = config.target?.url || process.env.CREATE_TASK_URL;
+  const webhookDelay = (config.queue?.start_delay ?? parseInt(process.env.WEBHOOK_DELAY || '5', 10)) * 1000;
 
   if (!token) throw new Error("AMOCRM access token is required");
   if (!agentToken) throw new Error("AGENT_TOKEN is required");
@@ -331,4 +335,5 @@ async function processWebhook(inputData, queueRow) {
   return { body, lead, taskParams };
 }
 
-module.exports = { processWebhook };
+export { processWebhook };
+export default { processWebhook };

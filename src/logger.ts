@@ -1,12 +1,15 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const LOG_DIR = path.join(__dirname, '..', 'data');
 const LOG_PATH = path.join(LOG_DIR, 'app.log');
 
 fs.mkdirSync(LOG_DIR, { recursive: true });
 
-function write(level, messages) {
+export function write(level: string, messages: string[]) {
   const line = `${new Date().toISOString()} ${level.toUpperCase()} ${messages.join(' ')}\n`;
   try {
     fs.appendFileSync(LOG_PATH, line);
@@ -34,4 +37,4 @@ console.warn = (...args) => {
   originalWarn(...args);
 };
 
-module.exports = { write };
+export default { write };

@@ -1,0 +1,9 @@
+webhooks:
+  - name: amocrm
+    webhook_path: /testhook
+queue:
+  max_attempts: 2
+  start_delay: 1000
+target:
+  token: t
+  url: http://example.com
