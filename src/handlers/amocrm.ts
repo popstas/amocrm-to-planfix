@@ -6,6 +6,8 @@ import path from 'path';
 import { config } from '../config.js';
 import { fileURLToPath } from 'url';
 
+const webhookConf = config.webhooks.find((w) => w.name === "amocrm");
+
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
   const options = {
@@ -244,9 +246,8 @@ function delay(ms) {
 
 async function processWebhook(inputData, queueRow) {
   const body = inputData.body || {};
-  const webhookConf = inputData.webhook;
-  const token = inputData.amocrm_token || webhookConf?.token || process.env.AMOCRM_TOKEN;
-  const agentToken = inputData.agent_token || config.target?.token || process.env.AGENT_TOKEN;
+  const token = webhookConf?.token || process.env.AMOCRM_TOKEN;
+  const agentToken = config.target?.token || process.env.AGENT_TOKEN;
   const createTaskUrl = config.target?.url || process.env.CREATE_TASK_URL;
   const webhookDelay = (config.queue?.start_delay ?? parseInt(process.env.WEBHOOK_DELAY || '5', 10)) * 1000;
 
