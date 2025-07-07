@@ -28,9 +28,10 @@ const expected = {
   name: 'John Doe Joe',
   email: 'john.doe.joe@example.com',
   phone: '1234567890',
-  desctiprion: 'Hii 🥺',
-  ig_username: 'john_doe',
+  instagram: 'john_doe',
+  description: 'Hii 🥺\n\nПоля:\nig_username: john_doe\ntimezone: UTC±00\nlive_chat_url: https://app.manychat.com/fb299/chat/134',
   fields: {
+    ig_username: 'john_doe',
     timezone: 'UTC±00',
     live_chat_url: 'https://app.manychat.com/fb299/chat/134'
   }

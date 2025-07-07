@@ -17,13 +17,26 @@ export function extractTaskParams(lead: any): any {
   if (contact.email) params.email = contact.email;
   const phone = contact.phone || contact.whatsapp_phone;
   if (phone) params.phone = phone;
-  if (contact.last_input_text) params.desctiprion = contact.last_input_text;
-  if (contact.ig_username) params.ig_username = contact.ig_username;
+  if (contact.ig_username) params.instagram = contact.ig_username;
 
   const fields: any = {};
+  if (contact.ig_username) fields.ig_username = contact.ig_username;
   if (contact.timezone) fields.timezone = contact.timezone;
   if (contact.live_chat_url) fields.live_chat_url = contact.live_chat_url;
   if (Object.keys(fields).length) params.fields = fields;
+
+  const descriptionParts = [];
+  if (contact.last_input_text) descriptionParts.push(contact.last_input_text);
+
+  const customLines = [];
+  for (const fName in fields) {
+    customLines.push(`${fName}: ${fields[fName]}`);
+  }
+  if (customLines.length) {
+    descriptionParts.push("", "Поля:", ...customLines);
+  }
+
+  params.description = descriptionParts.join("\n");
 
   return params;
 }
@@ -31,8 +44,9 @@ export function extractTaskParams(lead: any): any {
 export async function processWebhook({ body }: { body: any }): Promise<ProcessWebhookResult> {
   const agentToken = config.target?.token || process.env.AGENT_TOKEN;
   const createTaskUrl = config.target?.url || process.env.CREATE_TASK_URL;
-
   if (!agentToken) throw new Error('AGENT_TOKEN is required');
+
+  console.log(`processWebhook manychat: body: ${JSON.stringify(body)}`);
 
   const { lead } = extractLeadDetails(body);
   const taskParams = extractTaskParams(lead);

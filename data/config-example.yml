@@ -2,11 +2,12 @@ webhooks:
   - name: amocrm
     token: asd
     webhook_path: /amocrm
-  - name: tilda
-    webhook_path: /tilda
+  - name: manychat
+    leadSource: ManyChat
+    webhook_path: /manychat
 queue:
   max_attempts: 12
-  start_delay: 1000
+  start_delay: 5
 target:
   token: asd
   url: http://example.com
