@@ -5,8 +5,6 @@ import Database from 'better-sqlite3';
 import { config } from './config.js';
 import type { ProcessWebhook } from './handlers/types.js';
 
-const PROCESSING_ENABLED = process.env.INGEST_ONLY !== 'true';
-
 const DB_DIR = path.join(process.cwd(), 'data');
 const DB_PATH = path.join(DB_DIR, 'webhooks.db');
 
@@ -72,9 +70,7 @@ export async function addWebhook(name: string, body: any, retries = 3, interval 
     try {
       db.prepare('INSERT INTO queue (checksum, webhook, body, created_at, next_attempt) VALUES (?,?,?,?,?)')
         .run(sum, name, JSON.stringify(body), Date.now(), Date.now());
-      if (PROCESSING_ENABLED) {
-        scheduleNext();
-      }
+      // queue processing is handled by the worker
       return true;
     } catch (err: any) {
       console.error(`Failed to write webhook (attempt ${attempt}):`, err.message);
@@ -91,9 +87,6 @@ export async function addWebhook(name: string, body: any, retries = 3, interval 
 let processing = false;
 
 function scheduleNext() {
-  if (!PROCESSING_ENABLED) {
-    return;
-  }
   if (nextTimer) clearTimeout(nextTimer);
   const row = db
     .prepare('SELECT id, next_attempt FROM queue WHERE attempts < ? ORDER BY next_attempt LIMIT 1')

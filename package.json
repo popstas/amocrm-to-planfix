@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "tsx src/worker.ts",
     "worker": "tsx src/worker.ts",
-    "ingest": "INGEST_ONLY=true tsx src/index.ts",
+    "ingest": "tsx src/index.ts",
     "dev": "nodemon --exec tsx src/index.ts",
     "test": "vitest run",
     "test-webhook": "tsx src/testWebhook.ts"
