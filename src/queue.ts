@@ -57,7 +57,6 @@ function checksum(obj: any) {
 
 export async function addWebhook(name: string, body: any, retries = 3, interval = 5000) {
   const sum = checksum(name + JSON.stringify(body));
-  console.log('checksum:', sum);
   const exists = db
     .prepare('SELECT 1 FROM queue WHERE checksum=? UNION SELECT 1 FROM processed WHERE checksum=?')
     .get(sum, sum);
@@ -113,7 +112,6 @@ async function getHandler(name: string): Promise<ProcessWebhook> {
 
 async function handleRow(row: any) {
   try {
-    console.log('Processing row:', row.id);
     const data = JSON.parse(row.body);
     const handler = await getHandler(row.webhook);
     const response = await handler({ body: data }, row);
