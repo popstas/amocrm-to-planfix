@@ -1,8 +1,15 @@
-import { config, getWebhookConfig } from '../config.js';
+import { getWebhookConfig } from '../config.js';
 import { createPlanfixTask } from '../target.js';
+import type { WebhookItem } from '../config.js';
 import type { ProcessWebhookResult } from './types.js';
 
-const webhookConf = getWebhookConfig('manychat');
+export const webhookName = 'manychat';
+
+export interface ManychatConfig extends WebhookItem {
+  leadSource?: string;
+}
+
+const webhookConf = getWebhookConfig(webhookName) as ManychatConfig;
 
 export function extractLeadDetails(body: any): { lead: any } {
   return { lead: body.contact || {} };
@@ -42,19 +49,10 @@ export function extractTaskParams(lead: any): any {
 }
 
 export async function processWebhook({ body }: { body: any }): Promise<ProcessWebhookResult> {
-  const agentToken = config.target?.token || process.env.AGENT_TOKEN;
-  const createTaskUrl = config.target?.url || process.env.CREATE_TASK_URL;
-  if (!agentToken) throw new Error('AGENT_TOKEN is required');
-
-  console.log(`processWebhook manychat: body: ${JSON.stringify(body)}`);
-
   const { lead } = extractLeadDetails(body);
   const taskParams = extractTaskParams(lead);
 
-  let task;
-  if (createTaskUrl) {
-    task = await createPlanfixTask(taskParams, agentToken, createTaskUrl);
-  }
+  const task = await createPlanfixTask(taskParams);
 
   return { body, lead, taskParams, task };
 }
