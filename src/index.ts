@@ -7,6 +7,15 @@ import { addWebhook } from './queue.js';
 import { config } from './config.js';
 import { fileURLToPath } from 'url';
 
+function validateTargetConfig() {
+  const url = config.target?.url || process.env.CREATE_TASK_URL;
+  const token = config.target?.token || process.env.AGENT_TOKEN;
+  if (!url || !token) {
+    console.error('Missing target.url or target.token');
+    process.exit(1);
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 3012;
 
@@ -40,6 +49,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 const filename = fileURLToPath(import.meta.url);
 if (process.argv[1] === filename) {
+  validateTargetConfig();
   app.listen(Number(PORT), () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     console.log('Environment:', process.env.NODE_ENV || 'development');

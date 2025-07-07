@@ -1,9 +1,14 @@
 import fetch from 'node-fetch';
+import { config } from './config.js';
 
-export async function createPlanfixTask(taskParams: any, agentToken: string, createTaskUrl: string) {
-  const url = createTaskUrl || "";
+export async function createPlanfixTask(taskParams: any) {
+  const agentToken = config.target?.token || process.env.AGENT_TOKEN;
+  const url = config.target?.url || process.env.CREATE_TASK_URL;
+  if (!agentToken) {
+    throw new Error('AGENT_TOKEN is required');
+  }
   if (!url) {
-    throw new Error("CREATE_TASK_URL is required");
+    throw new Error('CREATE_TASK_URL is required');
   }
 
   const res = await fetch(url, {

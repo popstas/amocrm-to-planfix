@@ -114,7 +114,11 @@ async function handleRow(row: any) {
   try {
     const data = JSON.parse(row.body);
     const handler = await getHandler(row.webhook);
+    console.log(`processWebhook ${row.webhook}`);
     const response = await handler({ body: data }, row);
+    if (response?.task?.url) {
+      console.log('result:', response.task.url);
+    }
     db.prepare('INSERT INTO processed (checksum, webhook, body, created_at, processed_at, attempts, response) VALUES (?,?,?,?,?,?,?)')
       .run(row.checksum, row.webhook, row.body, row.created_at, Date.now(), row.attempts + 1, JSON.stringify(response));
     db.prepare('DELETE FROM queue WHERE id=?').run(row.id);

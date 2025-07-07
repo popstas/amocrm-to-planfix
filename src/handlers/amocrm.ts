@@ -5,10 +5,17 @@ import fs from 'fs';
 import path from 'path';
 import { config, getWebhookConfig } from '../config.js';
 import { createPlanfixTask } from '../target.js';
+import type { WebhookItem } from '../config.js';
 import type { ProcessWebhookResult } from './types.js';
 import { fileURLToPath } from 'url';
 
-const webhookConf = getWebhookConfig("amocrm");
+export const webhookName = 'amocrm';
+
+export interface AmocrmConfig extends WebhookItem {
+  token?: string;
+}
+
+const webhookConf = getWebhookConfig(webhookName) as AmocrmConfig;
 
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
@@ -225,14 +232,10 @@ function delay(ms) {
 
 async function processWebhook({ body }, queueRow): Promise<ProcessWebhookResult> {
   const token = webhookConf?.token || process.env.AMOCRM_TOKEN;
-  const agentToken = config.target?.token || process.env.AGENT_TOKEN;
-  const createTaskUrl = config.target?.url || process.env.CREATE_TASK_URL;
   const webhookDelay = (config.queue?.start_delay ?? parseInt(process.env.WEBHOOK_DELAY || '5', 10)) * 1000;
 
   if (!token) throw new Error("AMOCRM access token is required");
-  if (!agentToken) throw new Error("AGENT_TOKEN is required");
 
-  console.log(`processWebhook amocrm: leadId: ${body.leads?.add?.[0]?.id}, body: ${JSON.stringify(body)}`);
   // Access the nested properties directly from the object structure
   const baseUrl = (body.account?._links?.self || '').replace(/\/$/, '');
   const leadShort = body.leads?.add?.[0];
@@ -297,23 +300,12 @@ async function processWebhook({ body }, queueRow): Promise<ProcessWebhookResult>
   }
 
   // Create task in Planfix
-  if (createTaskUrl) {
-    const task = await createPlanfixTask(taskParams, agentToken, createTaskUrl);
-    if (contacts.length === 0) {
-      throw new Error(`Lead ${leadId} has no contacts`);
-    }
-    if (task?.url) {
-      console.log('result:', task.url);
-    } else {
-      console.error('Error: failed to create task');
-      if (task.error) {
-        console.error('Error:', task.error);
-      }
-    }
-    return { body, lead, taskParams, task };
+  const task = await createPlanfixTask(taskParams);
+  if (contacts.length === 0) {
+    throw new Error(`Lead ${leadId} has no contacts`);
   }
 
-  return { body, lead, taskParams };
+  return { body, lead, taskParams, task };
 }
 
 export { processWebhook };
