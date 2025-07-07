@@ -112,12 +112,14 @@ async function getHandler(name: string): Promise<ProcessWebhook> {
 
 async function handleRow(row: any) {
   try {
-    const data = JSON.parse(row.body);
+    const body = JSON.parse(row.body);
     const handler = await getHandler(row.webhook);
-    console.log(`processWebhook ${row.webhook}`);
-    const response = await handler({ body: data }, row);
+    console.log(`processWebhook ${row.webhook}, body: ${JSON.stringify(body)}`);
+    const response = await handler({ body }, row);
     if (response?.task?.url) {
       console.log('result:', response.task.url);
+    } else {
+      console.error('Failed to create task');
     }
     db.prepare('INSERT INTO processed (checksum, webhook, body, created_at, processed_at, attempts, response) VALUES (?,?,?,?,?,?,?)')
       .run(row.checksum, row.webhook, row.body, row.created_at, Date.now(), row.attempts + 1, JSON.stringify(response));
@@ -127,6 +129,12 @@ async function handleRow(row: any) {
     const sleepTime = DELAY * row.attempts ** 3 * 2;
     const nextAttempt = Date.now() + sleepTime;
     console.error(`Error processing row ${row.id}:`, err.message?.replace(/\n/g, ' '), ", row: ", JSON.stringify(row));
+
+    if (err.message.includes('table processed has no column')) {
+      console.error('Table processed has no column response');
+      process.exit(1);
+    }
+
     console.log(`Retrying row ${row.id}: attempts=${attempts - 1}, sleep=${sleepTime / 1000}s`);
     db.prepare('UPDATE queue SET attempts=?, last_error=?, next_attempt=? WHERE id=?')
       .run(attempts, err.message, nextAttempt, row.id);
