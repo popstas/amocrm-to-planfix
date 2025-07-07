@@ -4,6 +4,7 @@ import { ProxyAgent } from 'proxy-agent';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config.js';
+import { fileURLToPath } from 'url';
 
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
@@ -43,7 +44,8 @@ async function getResponsibleEmail(userId, baseUrl, token) {
   }
 }
 
-const PIPELINES_CACHE = path.join(__dirname, "..", "data", "pipelines.json");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PIPELINES_CACHE = path.join(__dirname, "..", "..", "data", "pipelines.json");
 const PIPELINES_TTL = 24 * 60 * 60 * 1000; // one day
 
 function loadPipelinesFromCache() {
