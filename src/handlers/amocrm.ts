@@ -3,10 +3,12 @@ import fetch from 'node-fetch';
 import { ProxyAgent } from 'proxy-agent';
 import fs from 'fs';
 import path from 'path';
-import { config } from '../config.js';
+import { config, getWebhookConfig } from '../config.js';
+import { createPlanfixTask } from '../target.js';
+import type { ProcessWebhookResult } from './types.js';
 import { fileURLToPath } from 'url';
 
-const webhookConf = config.webhooks.find((w) => w.name === "amocrm");
+const webhookConf = getWebhookConfig("amocrm");
 
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
@@ -216,35 +218,12 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
   return params;
 }
 
-async function createPlanfixTask(taskParams, agentToken, createTaskUrl) {
-  const url = createTaskUrl || "";
-  if (!url) {
-    throw new Error("CREATE_TASK_URL is required");
-  }
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${agentToken}`,
-    },
-    body: JSON.stringify(taskParams),
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(
-      `planfix_create_task request failed: ${res.status} ${text}`
-    );
-  }
-  return res.json();
-}
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function processWebhook({ body }, queueRow) {
+async function processWebhook({ body }, queueRow): Promise<ProcessWebhookResult> {
   const token = webhookConf?.token || process.env.AMOCRM_TOKEN;
   const agentToken = config.target?.token || process.env.AGENT_TOKEN;
   const createTaskUrl = config.target?.url || process.env.CREATE_TASK_URL;
@@ -253,7 +232,7 @@ async function processWebhook({ body }, queueRow) {
   if (!token) throw new Error("AMOCRM access token is required");
   if (!agentToken) throw new Error("AGENT_TOKEN is required");
 
-  console.log(`processWebhook: leadId: ${body.leads?.add?.[0]?.id}, body: ${JSON.stringify(body)}`);
+  console.log(`processWebhook amocrm: leadId: ${body.leads?.add?.[0]?.id}, body: ${JSON.stringify(body)}`);
   // Access the nested properties directly from the object structure
   const baseUrl = (body.account?._links?.self || '').replace(/\/$/, '');
   const leadShort = body.leads?.add?.[0];

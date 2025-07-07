@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import Database from 'better-sqlite3';
-import { config, WebhookItem } from './config.js';
+import { config } from './config.js';
+import type { ProcessWebhook } from './handlers/types.js';
 
 const DB_DIR = path.join(process.cwd(), 'data');
 const DB_PATH = path.join(DB_DIR, 'webhooks.db');
@@ -52,10 +53,6 @@ if (!columns.find(c => c.name === 'next_attempt')) {
 function checksum(obj: any) {
   const str = typeof obj === 'string' ? obj : JSON.stringify(obj);
   return crypto.createHash('sha256').update(str).digest('hex');
-}
-
-function getWebhookConfig(name: string): WebhookItem | undefined {
-  return config.webhooks.find(w => w.name === name);
 }
 
 export async function addWebhook(name: string, body: any, retries = 3, interval = 5000) {
@@ -108,9 +105,9 @@ function scheduleNext() {
   }
 }
 
-async function getHandler(name: string) {
+async function getHandler(name: string): Promise<ProcessWebhook> {
   const mod = await import(`./handlers/${name}.js`);
-  return mod.processWebhook as (input: any, row: any) => Promise<any>;
+  return mod.processWebhook as ProcessWebhook;
 }
 
 async function handleRow(row: any) {

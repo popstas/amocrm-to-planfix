@@ -1,0 +1,2 @@
+- [ ] change createPlanfixTask(taskParams, agentToken, createTaskUrl) to createPlanfixTask(taskParams)
+- [ ] check config.target url and token on start, fail if not set
