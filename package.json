@@ -5,12 +5,12 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/worker.js",
-    "worker": "node dist/worker.js",
-    "ingest": "node dist/index.js",
-    "dev": "nodemon src/index.ts",
+    "start": "tsx src/worker.ts",
+    "worker": "tsx src/worker.ts",
+    "ingest": "tsx src/index.ts",
+    "dev": "nodemon --exec tsx src/index.ts",
     "test": "vitest run",
-    "test-webhook": "node dist/testWebhook.js"
+    "test-webhook": "tsx src/testWebhook.ts"
   },
   "keywords": [
     "amocrm",
@@ -29,7 +29,8 @@
     "js-yaml": "^4.1.0",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.7",
-    "proxy-agent": "^6.5.0"
+    "proxy-agent": "^6.5.0",
+    "tsx": "^4.8.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
@@ -39,7 +40,6 @@
     "@types/supertest": "^2.0.12",
     "nodemon": "^2.0.22",
     "supertest": "^7.1.1",
-    "ts-node": "^10.9.2",
     "typescript": "^5.4.2",
     "vitest": "^3.2.4"
   }

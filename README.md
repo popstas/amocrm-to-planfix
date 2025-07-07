@@ -33,15 +33,17 @@ This service receives webhooks from AMOCRM when new leads are created and forwar
 
 ### Development
 
+Run the ingest service with hot reload using `tsx`:
+
 ```bash
 npm run dev
 ```
 
-The ingest server will start on `http://localhost:3012`
+The ingest server will start on `http://localhost:3012`.
 
 ### Production
 
-Run the queue worker and the ingest service separately:
+Run the queue worker and the ingest service separately using `tsx`:
 
 ```bash
 npm start        # start the worker
