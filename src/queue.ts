@@ -70,7 +70,7 @@ export async function addWebhook(name: string, body: any, retries = 3, interval 
     try {
       db.prepare('INSERT INTO queue (checksum, webhook, body, created_at, next_attempt) VALUES (?,?,?,?,?)')
         .run(sum, name, JSON.stringify(body), Date.now(), Date.now());
-      scheduleNext();
+      // queue processing is handled by the worker
       return true;
     } catch (err: any) {
       console.error(`Failed to write webhook (attempt ${attempt}):`, err.message);
