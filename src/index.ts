@@ -21,6 +21,7 @@ app.get('/', (req, res) => {
 
 for (const wh of config.webhooks || []) {
   const route = wh.webhook_path.startsWith('/') ? wh.webhook_path : `/${wh.webhook_path}`;
+  console.log(`Registering webhook: ${wh.name} at ${route}`)
   app.post(route, async (req, res) => {
     try {
       await addWebhook(wh.name, req.body);
