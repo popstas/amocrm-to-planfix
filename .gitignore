@@ -66,6 +66,6 @@ bower_components
 ehthumbs.db
 Thumbs.db
 data/*
-!data/config.yml
+!data/config-example.yml
 dist/
 runtest.mjs

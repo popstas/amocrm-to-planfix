@@ -6,7 +6,6 @@ import morgan from 'morgan';
 import { addWebhook } from './queue.js';
 import { config } from './config.js';
 import { fileURLToPath } from 'url';
-import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 3012;
