@@ -28,4 +28,10 @@ describe('index.ts', () => {
     expect(res.statusCode).toBe(200);
     expect(addWebhook).toHaveBeenCalledWith('amocrm', { a: 1 });
   });
+
+  it('queues manychat webhook', async () => {
+    const res = await request(server).post('/manychat').send({ b: 2 });
+    expect(res.statusCode).toBe(200);
+    expect(addWebhook).toHaveBeenCalledWith('manychat', { b: 2 });
+  });
 });

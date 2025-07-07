@@ -17,3 +17,7 @@ const defaultPath = path.join(process.cwd(), 'data', 'config.yml');
 const configPath = process.env.CONFIG || defaultPath;
 
 export const config: Config = yaml.load(fs.readFileSync(configPath, 'utf8')) as Config;
+
+export function getWebhookConfig(name: string): WebhookItem | undefined {
+  return config.webhooks.find(w => w.name === name);
+}

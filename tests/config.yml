@@ -1,6 +1,9 @@
 webhooks:
   - name: amocrm
     webhook_path: /testhook
+  - name: manychat
+    leadSource: ManyChat
+    webhook_path: /manychat
 queue:
   max_attempts: 2
   start_delay: 1000
