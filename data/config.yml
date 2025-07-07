@@ -1,0 +1,13 @@
+webhooks:
+  - name: amocrm
+    token: asd
+    webhook_path: /amocrm
+  - name: tilda
+    webhook_path: /tilda
+queue:
+  max_attempts: 12
+  start_delay: 1000
+target:
+  token: asd
+  url: http://example.com
+proxy_url: http://host:port
