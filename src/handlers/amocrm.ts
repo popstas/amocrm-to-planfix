@@ -244,8 +244,7 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function processWebhook(inputData, queueRow) {
-  const body = inputData.body || {};
+async function processWebhook({ body }, queueRow) {
   const token = webhookConf?.token || process.env.AMOCRM_TOKEN;
   const agentToken = config.target?.token || process.env.AGENT_TOKEN;
   const createTaskUrl = config.target?.url || process.env.CREATE_TASK_URL;
