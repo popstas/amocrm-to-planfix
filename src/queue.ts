@@ -122,7 +122,7 @@ async function handleRow(row: any) {
     const attempts = row.attempts + 1;
     const sleepTime = DELAY * row.attempts ** 3 * 2;
     const nextAttempt = Date.now() + sleepTime;
-    console.log(`Error processing row ${row.id}:`, err.message?.replace(/\n/g, ' '));
+    console.error(`Error processing row ${row.id}:`, err.message?.replace(/\n/g, ' '), ", row: ", JSON.stringify(row));
     console.log(`Retrying row ${row.id}: attempts=${attempts - 1}, sleep=${sleepTime / 1000}s`);
     db.prepare('UPDATE queue SET attempts=?, last_error=?, next_attempt=? WHERE id=?')
       .run(attempts, err.message, nextAttempt, row.id);
