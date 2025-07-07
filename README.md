@@ -47,7 +47,10 @@ Run the queue worker and the ingest service separately using `tsx`:
 
 ```bash
 npm start        # start the worker
-npm run ingest   # start the webhook collector
+npm run ingest   # start the webhook collector (queue processing disabled)
+
+The `ingest` script sets `INGEST_ONLY=true` so incoming webhooks are stored but
+not processed. Run the worker separately to handle the queue.
 ```
 
 ## Docker
