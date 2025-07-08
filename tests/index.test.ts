@@ -26,12 +26,18 @@ describe('index.ts', () => {
   it('queues webhook on configured path', async () => {
     const res = await request(server).post('/testhook').send({ a: 1 });
     expect(res.statusCode).toBe(200);
-    expect(addWebhook).toHaveBeenCalledWith('amocrm', { a: 1 });
+    expect(addWebhook).toHaveBeenCalledWith('amocrm', {
+      headers: expect.any(Object),
+      body: { a: 1 }
+    });
   });
 
   it('queues manychat webhook', async () => {
     const res = await request(server).post('/manychat').send({ b: 2 });
     expect(res.statusCode).toBe(200);
-    expect(addWebhook).toHaveBeenCalledWith('manychat', { b: 2 });
+    expect(addWebhook).toHaveBeenCalledWith('manychat', {
+      headers: expect.any(Object),
+      body: { b: 2 }
+    });
   });
 });

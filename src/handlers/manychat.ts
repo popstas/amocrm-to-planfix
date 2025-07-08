@@ -48,7 +48,7 @@ export function extractTaskParams(lead: any): any {
   return params;
 }
 
-export async function processWebhook({ body }: { body: any }): Promise<ProcessWebhookResult> {
+export async function processWebhook({ headers, body }: { headers: any; body: any }): Promise<ProcessWebhookResult> {
   const { lead } = extractLeadDetails(body);
   const taskParams = extractTaskParams(lead);
 

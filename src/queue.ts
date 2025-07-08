@@ -112,10 +112,14 @@ async function getHandler(name: string): Promise<ProcessWebhook> {
 
 async function handleRow(row: any) {
   try {
-    const body = JSON.parse(row.body);
+    const payload = JSON.parse(row.body);
+    const input =
+      payload && typeof payload === 'object' && 'body' in payload && 'headers' in payload
+        ? { headers: payload.headers, body: payload.body }
+        : { headers: {}, body: payload };
     const handler = await getHandler(row.webhook);
-    console.log(`processWebhook ${row.webhook}, body: ${JSON.stringify(body)}`);
-    const response = await handler({ body }, row);
+    console.log(`processWebhook ${row.webhook}, body: ${JSON.stringify(input.body)}`);
+    const response = await handler(input, row);
     if (response?.task?.url) {
       console.log('result:', response.task.url);
     } else {

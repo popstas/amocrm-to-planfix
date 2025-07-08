@@ -6,5 +6,5 @@ export interface ProcessWebhookResult {
 }
 
 export interface ProcessWebhook {
-  (input: { body: any }, row?: any): Promise<ProcessWebhookResult>;
+  (input: { headers: any; body: any }, row?: any): Promise<ProcessWebhookResult>;
 }

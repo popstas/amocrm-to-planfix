@@ -44,7 +44,7 @@ describe('manychat handler', () => {
   });
 
   it('processWebhook returns expected structure', async () => {
-    const res = await processWebhook({ body });
+    const res = await processWebhook({ headers: {}, body });
     expect(res.taskParams).toEqual(expected);
     expect(res.lead).toEqual(body.contact);
     expect(res.body).toEqual(body);
