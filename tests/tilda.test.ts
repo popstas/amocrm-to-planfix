@@ -52,4 +52,12 @@ describe('tilda handler', () => {
     const params = extractTaskParams(noNameBody, headers);
     expect(params.name).toBe('Unknown name');
   });
+
+  it('handle test webhook', async () => {
+    const res = await processWebhook({ headers, body: { test: 'test' } });
+    expect(res.taskParams).toEqual({});
+    expect(res.lead).toEqual({});
+    expect(res.body).toEqual({ test: 'test' });
+    expect(res.task).toEqual({});
+  });
 });

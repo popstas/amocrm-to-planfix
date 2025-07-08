@@ -43,7 +43,14 @@ export function extractTaskParams(body: any, headers: any): any {
   return params;
 }
 
+function isTestWebhook(body: any): boolean {
+  return body.test === 'test';
+}
+
 export async function processWebhook({ headers = {}, body }: { headers: any; body: any }): Promise<ProcessWebhookResult> {
+  if (isTestWebhook(body)) {
+    return { body, lead: {}, taskParams: {}, task: {} };
+  }
   const taskParams = extractTaskParams(body, headers);
   const task = await createPlanfixTask(taskParams);
   return { body, lead: body, taskParams, task };
