@@ -23,6 +23,8 @@ async function main() {
     console.error(`File not found: ${headersPath}`);
     process.exitCode = 1;
     return;
+  } else {
+    headers = {};
   }
   try {
     const mod = await import(`./handlers/${webhookName}.js`);
