@@ -230,7 +230,7 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function processWebhook({ body }, queueRow): Promise<ProcessWebhookResult> {
+async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebhookResult> {
   const token = webhookConf?.token || process.env.AMOCRM_TOKEN;
   const webhookDelay = (config.queue?.start_delay ?? parseInt(process.env.WEBHOOK_DELAY || '5', 10)) * 1000;
 

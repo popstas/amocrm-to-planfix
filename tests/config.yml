@@ -4,6 +4,9 @@ webhooks:
   - name: manychat
     leadSource: ManyChat
     webhook_path: /manychat
+  - name: tilda
+    leadSource: Tilda
+    webhook_path: /tilda
 queue:
   max_attempts: 2
   start_delay: 1000

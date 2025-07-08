@@ -33,7 +33,7 @@ for (const wh of config.webhooks || []) {
   console.log(`Registering webhook: ${wh.name} at ${route}`)
   app.post(route, async (req, res) => {
     try {
-      await addWebhook(wh.name, req.body);
+      await addWebhook(wh.name, { headers: req.headers, body: req.body });
       res.status(200).json({ success: true });
     } catch (error: any) {
       console.error('Error queueing webhook:', error);

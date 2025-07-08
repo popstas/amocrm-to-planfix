@@ -11,8 +11,8 @@ export interface ExampleConfig extends WebhookItem {
 
 const webhookConf = getWebhookConfig(webhookName) as ExampleConfig;
 
-export async function processWebhook({ body }: { body: any }): Promise<ProcessWebhookResult> {
-  const taskParams = { example: webhookConf?.exampleField, body };
+export async function processWebhook({ headers, body }: { headers: any; body: any }): Promise<ProcessWebhookResult> {
+  const taskParams = { example: webhookConf?.exampleField, headers, body };
   const task = await createPlanfixTask(taskParams);
   return { body, lead: {}, taskParams, task };
 }
