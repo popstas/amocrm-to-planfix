@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { config, getWebhookConfig } from '../config.js';
 import { createPlanfixTask } from '../target.js';
+import { appendDefaults } from './utils.js';
 import type { WebhookItem } from '../config.js';
 import type { ProcessWebhookResult } from './types.js';
 import { fileURLToPath } from 'url';
@@ -281,6 +282,8 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   if (pipelineName) {
     taskParams.pipeline = pipelineName;
   }
+
+  appendDefaults(taskParams, webhookConf);
 
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);

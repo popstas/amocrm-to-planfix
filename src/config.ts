@@ -2,7 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 
-export interface WebhookItem { name: string; token?: string; webhook_path: string; }
+export interface WebhookItem {
+  name: string;
+  token?: string;
+  webhook_path: string;
+  tags?: string[];
+  pipeline?: string;
+  project?: string;
+  leadSource?: string;
+}
 export interface QueueConfig { max_attempts?: number; start_delay?: number; }
 export interface TargetConfig { token?: string; url?: string; }
 

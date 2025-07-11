@@ -1,5 +1,6 @@
 import { createPlanfixTask } from '../target.js';
 import { getWebhookConfig } from '../config.js';
+import { appendDefaults } from './utils.js';
 import type { ProcessWebhookResult } from './types.js';
 import type { WebhookItem } from '../config.js';
 
@@ -52,6 +53,7 @@ export async function processWebhook({ headers = {}, body }: { headers: any; bod
     return { body, lead: {}, taskParams: {}, task: {} };
   }
   const taskParams = extractTaskParams(body, headers);
+  appendDefaults(taskParams, webhookConf);
   const task = await createPlanfixTask(taskParams);
   return { body, lead: body, taskParams, task };
 }

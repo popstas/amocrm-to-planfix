@@ -6,6 +6,9 @@ webhooks:
     webhook_path: /manychat
   - name: tilda
     leadSource: Tilda
+    tags: [landing]
+    pipeline: Web
+    project: Website
     webhook_path: /tilda
 queue:
   max_attempts: 2

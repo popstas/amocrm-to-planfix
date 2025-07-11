@@ -33,6 +33,13 @@ const expected = {
   }
 };
 
+const expectedWithDefaults = {
+  ...expected,
+  tags: ['landing'],
+  pipeline: 'Web',
+  project: 'Website'
+};
+
 describe('tilda handler', () => {
   it('extracts task params', () => {
     const params = extractTaskParams(body, headers);
@@ -41,7 +48,7 @@ describe('tilda handler', () => {
 
   it('processWebhook returns expected structure', async () => {
     const res = await processWebhook({ headers, body });
-    expect(res.taskParams).toEqual(expected);
+    expect(res.taskParams).toEqual(expectedWithDefaults);
     expect(res.lead).toEqual(body);
     expect(res.body).toEqual(body);
     expect(res.task).toEqual({ url: 'ok' });
