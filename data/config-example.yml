@@ -2,11 +2,21 @@ webhooks:
   - name: amocrm
     token: asd
     webhook_path: /amocrm
+    tags: [sales]
+    pipeline: Sales
+    project: Website
+    leadSource: AMOCRM
   - name: manychat
     leadSource: ManyChat
+    tags: [bot]
+    pipeline: Chat
+    project: Website
     webhook_path: /manychat
   - name: tilda
     leadSource: Tilda
+    tags: [landing]
+    pipeline: Web
+    project: Website
     webhook_path: /tilda
 queue:
   max_attempts: 12
