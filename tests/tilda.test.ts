@@ -54,6 +54,29 @@ describe('tilda handler', () => {
     expect(res.task).toEqual({ url: 'ok' });
   });
 
+  it('handles capitalized field names and telegram field', () => {
+    const capBody = {
+      Name: 'Jane Doe',
+      Email: 'jane.doe@example.com',
+      Phone: '+7 (999) 111-11-11',
+      'Ваш_ник_в_Telegram': 'janedoe',
+      formname: 'Cart',
+    };
+    const params = extractTaskParams(capBody, headers);
+    expect(params).toEqual({
+      leadSource: 'Tilda',
+      name: 'Jane Doe',
+      email: 'jane.doe@example.com',
+      phone: '+7 (999) 111-11-11',
+      telegram: 'janedoe',
+      description: 'Поля:\nreferer: https://example.com/form-page-01\nformname: Cart',
+      fields: {
+        referer: 'https://example.com/form-page-01',
+        formname: 'Cart',
+      },
+    });
+  });
+
   it('uses default name when not provided', () => {
     const noNameBody = { email: 'a@b.com', phone: '123', formname: 'Form' };
     const params = extractTaskParams(noNameBody, headers);
