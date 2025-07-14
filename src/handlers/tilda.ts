@@ -12,12 +12,44 @@ export interface TildaConfig extends WebhookItem {
 
 const webhookConf = getWebhookConfig(webhookName) as TildaConfig;
 
+function findField(
+  body: Record<string, any>,
+  patterns: RegExp[]
+): { key?: string; value?: any } {
+  for (const [key, value] of Object.entries(body)) {
+    for (const p of patterns) {
+      if (p.test(key)) return { key, value };
+    }
+  }
+  return {};
+}
+
 export function extractTaskParams(body: any, headers: any): any {
   const params: any = { leadSource: webhookConf?.leadSource || 'Tilda' };
 
-  params.name = body.name || 'Unknown name';
-  if (body.email) params.email = body.email;
-  if (body.phone) params.phone = body.phone;
+  const recognized = new Set<string>();
+
+  const nameField = findField(body, [/^name$/i, /^имя$/i]);
+  params.name = nameField.value || 'Unknown name';
+  if (nameField.key) recognized.add(nameField.key.toLowerCase());
+
+  const emailField = findField(body, [/^e-?mail$/i, /^email$/i, /^почта$/i]);
+  if (emailField.key) {
+    params.email = emailField.value;
+    recognized.add(emailField.key.toLowerCase());
+  }
+
+  const phoneField = findField(body, [/^phone$/i, /^телефон$/i]);
+  if (phoneField.key) {
+    params.phone = phoneField.value;
+    recognized.add(phoneField.key.toLowerCase());
+  }
+
+  const telegramField = findField(body, [/telegram/i, /телеграм/i]);
+  if (telegramField.key) {
+    params.telegram = telegramField.value;
+    recognized.add(telegramField.key.toLowerCase());
+  }
 
   const fields: any = {};
   const lines: string[] = [];
@@ -27,9 +59,25 @@ export function extractTaskParams(body: any, headers: any): any {
     lines.push(`referer: ${headers.referer}`);
   }
 
-  const ignored = ['name', 'email', 'phone', 'refLinkId', 'userId', 'tranid', 'formid'];
+  const ignored = new Set([
+    'name',
+    'email',
+    'phone',
+    'telegram',
+    'reflinkid',
+    'userid',
+    'tranid',
+    'formid',
+  ]);
   for (const [key, value] of Object.entries(body)) {
-    if (ignored.includes(key) || value === undefined || value === null || value === '') {
+    const keyLower = key.toLowerCase();
+    if (
+      ignored.has(keyLower) ||
+      recognized.has(keyLower) ||
+      value === undefined ||
+      value === null ||
+      value === ''
+    ) {
       continue;
     }
     fields[key] = value;
