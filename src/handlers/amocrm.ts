@@ -4,7 +4,7 @@ import { ProxyAgent } from 'proxy-agent';
 import fs from 'fs';
 import path from 'path';
 import { config, getWebhookConfig } from '../config.js';
-import { createPlanfixTask } from '../target.js';
+import { sendToTargets } from '../target.js';
 import { appendDefaults } from './utils.js';
 import type { WebhookItem } from '../config.js';
 import type { ProcessWebhookResult } from './types.js';
@@ -303,7 +303,7 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   }
 
   // Create task in Planfix
-  const task = await createPlanfixTask(taskParams);
+  const task = await sendToTargets(taskParams);
   if (contacts.length === 0) {
     throw new Error(`Lead ${leadId} has no contacts`);
   }

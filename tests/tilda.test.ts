@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('../src/target.ts', () => ({
-  createPlanfixTask: vi.fn(async () => ({ url: 'ok' }))
+  sendToTargets: vi.fn(async () => ({ url: 'ok' }))
 }));
 
 import { processWebhook, extractTaskParams } from '../src/handlers/tilda.ts';

@@ -13,11 +13,13 @@ export interface WebhookItem {
 }
 export interface QueueConfig { max_attempts?: number; start_delay?: number; }
 export interface TargetConfig { token?: string; url?: string; }
+export interface TelegramConfig { bot_name?: string; bot_token?: string; }
 
 export interface Config {
   webhooks: WebhookItem[];
   queue?: QueueConfig;
   target?: TargetConfig;
+  telegram?: TelegramConfig;
   proxy_url?: string;
 }
 

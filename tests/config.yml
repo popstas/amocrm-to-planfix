@@ -16,3 +16,6 @@ queue:
 target:
   token: t
   url: http://example.com
+telegram:
+  bot_name: example_bot
+  bot_token: token
