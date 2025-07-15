@@ -5,10 +5,10 @@ import { config } from './config.js';
 import { fileURLToPath } from 'url';
 
 function validateTargetConfig() {
-  const url = config.target?.url || process.env.CREATE_TASK_URL;
-  const token = config.target?.token || process.env.AGENT_TOKEN;
+  const url = config.planfix_agent?.url || process.env.CREATE_TASK_URL;
+  const token = config.planfix_agent?.token || process.env.AGENT_TOKEN;
   if (!url || !token) {
-    console.error('Missing target.url or target.token');
+    console.error('Missing planfix_agent.url or planfix_agent.token');
     process.exit(1);
   }
 }

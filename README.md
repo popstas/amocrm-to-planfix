@@ -113,7 +113,7 @@ webhooks:
 queue:
   max_attempts: 12
   start_delay: 1000
-target:
+planfix_agent:
   token: your_planfix_token
   url: https://planfix.example.com
 ```
@@ -130,7 +130,7 @@ target:
 | `CONFIG` | No | Path to `config.yml` (default: `data/config.yml`) |
 | `PROXY_URL` | No | Proxy URL for AMOCRM requests |
 
-`*` Required if not provided in `config.yml` under `target`.
+`*` Required if not provided in `config.yml` under `planfix_agent`.
 
 ## License
 

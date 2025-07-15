@@ -21,7 +21,7 @@ webhooks:
 queue:
   max_attempts: 12
   start_delay: 5
-target:
+planfix_agent:
   token: asd
   url: http://example.com
 proxy_url: http://host:port

@@ -11,4 +11,8 @@ describe('config loader', () => {
   it('loads telegram config', () => {
     expect(config.telegram?.bot_name).toBe('example_bot');
   });
+
+  it('loads planfix agent config', () => {
+    expect(config.planfix_agent?.url).toBe('http://example.com');
+  });
 });
