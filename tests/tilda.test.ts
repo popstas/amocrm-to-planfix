@@ -83,6 +83,21 @@ describe('tilda handler', () => {
     expect(params.name).toBe('Unknown name');
   });
 
+  it('parses utm params and strips mcp_token', () => {
+    const hdrs = {
+      referer:
+        'https://example.com/page?utm_source=src&utm_medium=med&utm_campaign=camp&mcp_token=abc&foo=bar',
+    };
+    const params = extractTaskParams({}, hdrs);
+    expect(params.fields).toEqual({
+      referer:
+        'https://example.com/page?utm_source=src&utm_medium=med&utm_campaign=camp&foo=bar',
+      utm_source: 'src',
+      utm_medium: 'med',
+      utm_campaign: 'camp',
+    });
+  });
+
   it('handle test webhook', async () => {
     const res = await processWebhook({ headers, body: { test: 'test' } });
     expect(res.taskParams).toEqual({});

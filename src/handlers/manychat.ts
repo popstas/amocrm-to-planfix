@@ -54,7 +54,7 @@ export async function processWebhook({ headers, body }: { headers: any; body: an
   const taskParams = extractTaskParams(lead);
   appendDefaults(taskParams, webhookConf);
 
-  const task = await sendToTargets(taskParams);
+  const task = await sendToTargets(taskParams, webhookName);
 
   return { body, lead, taskParams, task };
 }

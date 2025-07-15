@@ -300,7 +300,7 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
 
 
   // Create task in Planfix
-  const task = await sendToTargets(taskParams);
+  const task = await sendToTargets(taskParams, webhookName);
   if (contacts.length === 0) {
     throw new Error(`Lead ${leadId} has no contacts`);
   }
