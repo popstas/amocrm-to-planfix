@@ -38,18 +38,22 @@ export async function sendTelegramMessage(
   const { bot_token: botToken, chat_id: chatId } = config.telegram;
   if (!botToken || !chatId) return null;
 
-  let text = taskParams.description || '';
+  let text = (taskParams.description || '').trim();
   if (!text) {
     text = JSON.stringify(taskParams);
   }
 
   const details: string[] = [];
-  if (taskParams.name) details.push(`name: ${taskParams.name}`);
-  if (taskParams.pipeline) details.push(`pipeline: ${taskParams.pipeline}`);
+  if (taskParams.name) details.push(`Имя: ${taskParams.name}`);
+  if (taskParams.phone) details.push(`Телефон: ${taskParams.phone}`);
+  if (taskParams.email) details.push(`Email: ${taskParams.email}`);
+  if (taskParams.telegram) details.push(`Telegram: ${taskParams.telegram}`);
+  if (taskParams.instagram) details.push(`Instagram: https://instagram.com/${taskParams.instagram}`);
+  if (taskParams.pipeline) details.push(`Воронка: ${taskParams.pipeline}`);
   if (taskParams.leadSource)
-    details.push(`leadSource: ${taskParams.leadSource}`);
+    details.push(`Источник продажи: ${taskParams.leadSource}`);
   if (details.length) {
-    text += (text ? '\n' : '') + details.join('\n');
+    text = `${details.join('\n')}\n\n${text}`;
   }
 
   if (webhookName) {
@@ -57,12 +61,12 @@ export async function sendTelegramMessage(
   }
 
   if (task?.url) {
-    text += (text ? '\n' : '') + task.url;
+    text = `${text}\n\nПланфикс:\n${task.url}`;
   }
 
   if (Array.isArray(taskParams.tags) && taskParams.tags.length) {
     const tags = taskParams.tags.map((t: string) => `#${t}`).join(' ');
-    text += (text ? '\n\n' : '') + tags;
+    text = `${text}\n\n${tags}`;
   }
 
   const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
