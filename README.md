@@ -116,6 +116,10 @@ queue:
 planfix_agent:
   token: your_planfix_token
   url: https://planfix.example.com
+telegram:
+  bot_name: example_bot
+  bot_token: token
+  chat_id: 123456
 ```
 
 ## Environment Variables
@@ -129,6 +133,8 @@ planfix_agent:
 | `CREATE_TASK_URL` | Yes* | Planfix task creation endpoint |
 | `CONFIG` | No | Path to `config.yml` (default: `data/config.yml`) |
 | `PROXY_URL` | No | Proxy URL for AMOCRM requests |
+| `TELEGRAM_BOT_TOKEN` | No | Telegram bot token |
+| `TELEGRAM_CHAT_ID` | No | Chat or channel ID for Telegram messages |
 
 `*` Required if not provided in `config.yml` under `planfix_agent`.
 

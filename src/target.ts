@@ -31,8 +31,12 @@ export async function createPlanfixTask(taskParams: any) {
 
 export async function sendTelegramMessage(taskParams: any) {
   const botToken = config.telegram?.bot_token || process.env.TELEGRAM_BOT_TOKEN;
-  const botName = config.telegram?.bot_name || process.env.TELEGRAM_BOT_NAME;
-  if (!botToken || !botName) return null;
+  const chatId =
+    config.telegram?.chat_id ||
+    config.telegram?.bot_name ||
+    process.env.TELEGRAM_CHAT_ID ||
+    process.env.TELEGRAM_BOT_NAME;
+  if (!botToken || !chatId) return null;
 
   let text = taskParams.description || '';
   if (!text) {
@@ -48,7 +52,7 @@ export async function sendTelegramMessage(taskParams: any) {
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: botName, text }),
+    body: JSON.stringify({ chat_id: chatId, text }),
   });
 
   if (!res.ok) {

@@ -19,3 +19,4 @@ planfix_agent:
 telegram:
   bot_name: example_bot
   bot_token: token
+  chat_id: example_chat
