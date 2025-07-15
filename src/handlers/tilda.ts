@@ -1,4 +1,4 @@
-import { createPlanfixTask } from '../target.js';
+import { sendToTargets } from '../target.js';
 import { getWebhookConfig } from '../config.js';
 import { appendDefaults } from './utils.js';
 import type { ProcessWebhookResult } from './types.js';
@@ -55,8 +55,23 @@ export function extractTaskParams(body: any, headers: any): any {
   const lines: string[] = [];
 
   if (headers?.referer) {
-    fields.referer = headers.referer;
-    lines.push(`referer: ${headers.referer}`);
+    try {
+      const url = new URL(headers.referer);
+      const params = url.searchParams;
+      const utmSource = params.get('utm_source');
+      const utmMedium = params.get('utm_medium');
+      const utmCampaign = params.get('utm_campaign');
+      if (utmSource) fields.utm_source = utmSource;
+      if (utmMedium) fields.utm_medium = utmMedium;
+      if (utmCampaign) fields.utm_campaign = utmCampaign;
+      params.delete('mcp_token');
+      const search = params.toString();
+      url.search = search ? `?${search}` : '';
+      fields.referer = url.toString();
+    } catch {
+      fields.referer = headers.referer;
+    }
+    lines.push(`referer: ${fields.referer}`);
   }
 
   const ignored = new Set([
@@ -102,7 +117,7 @@ export async function processWebhook({ headers = {}, body }: { headers: any; bod
   }
   const taskParams = extractTaskParams(body, headers);
   appendDefaults(taskParams, webhookConf);
-  const task = await createPlanfixTask(taskParams);
+  const task = await sendToTargets(taskParams, webhookName);
   return { body, lead: body, taskParams, task };
 }
 

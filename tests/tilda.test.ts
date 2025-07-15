@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('../src/target.ts', () => ({
-  createPlanfixTask: vi.fn(async () => ({ url: 'ok' }))
+  sendToTargets: vi.fn(async () => ({ url: 'ok' }))
 }));
 
 import { processWebhook, extractTaskParams } from '../src/handlers/tilda.ts';
@@ -81,6 +81,21 @@ describe('tilda handler', () => {
     const noNameBody = { email: 'a@b.com', phone: '123', formname: 'Form' };
     const params = extractTaskParams(noNameBody, headers);
     expect(params.name).toBe('Unknown name');
+  });
+
+  it('parses utm params and strips mcp_token', () => {
+    const hdrs = {
+      referer:
+        'https://example.com/page?utm_source=src&utm_medium=med&utm_campaign=camp&mcp_token=abc&foo=bar',
+    };
+    const params = extractTaskParams({}, hdrs);
+    expect(params.fields).toEqual({
+      referer:
+        'https://example.com/page?utm_source=src&utm_medium=med&utm_campaign=camp&foo=bar',
+      utm_source: 'src',
+      utm_medium: 'med',
+      utm_campaign: 'camp',
+    });
   });
 
   it('handle test webhook', async () => {

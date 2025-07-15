@@ -13,6 +13,10 @@ webhooks:
 queue:
   max_attempts: 2
   start_delay: 1000
-target:
+planfix_agent:
   token: t
   url: http://example.com
+telegram:
+  bot_name: example_bot
+  bot_token: token
+  chat_id: example_chat
