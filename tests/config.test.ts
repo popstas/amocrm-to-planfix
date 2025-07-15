@@ -9,8 +9,8 @@ describe('config loader', () => {
   });
 
   it('loads telegram config', () => {
-    expect(config.telegram?.bot_name).toBe('example_bot');
-    expect(config.telegram?.chat_id).toBe('example_chat');
+    expect(config.telegram.bot_name).toBe('example_bot');
+    expect(config.telegram.chat_id).toBe('example_chat');
   });
 
   it('loads planfix agent config', () => {

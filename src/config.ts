@@ -14,9 +14,9 @@ export interface WebhookItem {
 export interface QueueConfig { max_attempts?: number; start_delay?: number; }
 export interface PlanfixAgentConfig { token?: string; url?: string; }
 export interface TelegramConfig {
-  bot_name?: string;
-  bot_token?: string;
-  chat_id?: string;
+  bot_name: string;
+  bot_token: string;
+  chat_id: string;
 }
 
 export interface Config {

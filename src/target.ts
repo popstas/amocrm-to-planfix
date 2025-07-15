@@ -2,13 +2,13 @@ import fetch from 'node-fetch';
 import { config } from './config.js';
 
 export async function createPlanfixTask(taskParams: any) {
-  const agentToken = config.planfix_agent?.token || process.env.AGENT_TOKEN;
-  const url = config.planfix_agent?.url || process.env.CREATE_TASK_URL;
+  const agentToken = config.planfix_agent?.token;
+  const url = config.planfix_agent?.url;
   if (!agentToken) {
-    throw new Error('AGENT_TOKEN is required');
+    throw new Error('planfix_agent.token is required');
   }
   if (!url) {
-    throw new Error('CREATE_TASK_URL is required');
+    throw new Error('planfix_agent.url is required');
   }
 
   const res = await fetch(url, {
@@ -30,12 +30,8 @@ export async function createPlanfixTask(taskParams: any) {
 }
 
 export async function sendTelegramMessage(taskParams: any) {
-  const botToken = config.telegram?.bot_token || process.env.TELEGRAM_BOT_TOKEN;
-  const chatId =
-    config.telegram?.chat_id ||
-    config.telegram?.bot_name ||
-    process.env.TELEGRAM_CHAT_ID ||
-    process.env.TELEGRAM_BOT_NAME;
+  if (!config.telegram) return null;
+  const { bot_token: botToken, chat_id: chatId } = config.telegram;
   if (!botToken || !chatId) return null;
 
   let text = taskParams.description || '';

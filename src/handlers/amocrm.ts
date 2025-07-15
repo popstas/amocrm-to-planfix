@@ -27,7 +27,7 @@ async function amoGet(baseUrl, path, token) {
       "Content-Type": "application/json",
     },
   };
-  const proxy = process.env.PROXY_URL || config.proxy_url;
+  const proxy = config.proxy_url;
   if (proxy) {
     options.agent = new ProxyAgent(proxy);
   }
@@ -232,8 +232,8 @@ function delay(ms) {
 }
 
 async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebhookResult> {
-  const token = webhookConf?.token || process.env.AMOCRM_TOKEN;
-  const webhookDelay = (config.queue?.start_delay ?? parseInt(process.env.WEBHOOK_DELAY || '5', 10)) * 1000;
+  const token = webhookConf?.token;
+  const webhookDelay = (config.queue?.start_delay ?? 5) * 1000;
 
   if (!token) throw new Error("AMOCRM access token is required");
 
@@ -298,9 +298,6 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
     }
   }
 
-  if (process.env.MANAGER_EMAIL) {
-    taskParams.managerEmail = process.env.MANAGER_EMAIL;
-  }
 
   // Create task in Planfix
   const task = await sendToTargets(taskParams);
