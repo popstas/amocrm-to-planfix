@@ -29,7 +29,11 @@ export async function createPlanfixTask(taskParams: any) {
   return res.json();
 }
 
-export async function sendTelegramMessage(taskParams: any, webhookName = '') {
+export async function sendTelegramMessage(
+  taskParams: any,
+  webhookName = '',
+  task: any = null
+) {
   if (!config.telegram) return null;
   const { bot_token: botToken, chat_id: chatId } = config.telegram;
   if (!botToken || !chatId) return null;
@@ -39,8 +43,21 @@ export async function sendTelegramMessage(taskParams: any, webhookName = '') {
     text = JSON.stringify(taskParams);
   }
 
+  const details: string[] = [];
+  if (taskParams.name) details.push(`name: ${taskParams.name}`);
+  if (taskParams.pipeline) details.push(`pipeline: ${taskParams.pipeline}`);
+  if (taskParams.leadSource)
+    details.push(`leadSource: ${taskParams.leadSource}`);
+  if (details.length) {
+    text += (text ? '\n' : '') + details.join('\n');
+  }
+
   if (webhookName) {
     text = `${webhookName}:\n\n${text}`;
+  }
+
+  if (task?.url) {
+    text += (text ? '\n' : '') + task.url;
   }
 
   if (Array.isArray(taskParams.tags) && taskParams.tags.length) {
@@ -65,7 +82,7 @@ export async function sendTelegramMessage(taskParams: any, webhookName = '') {
 export async function sendToTargets(taskParams: any, webhookName = '') {
   const task = await createPlanfixTask(taskParams);
   try {
-    await sendTelegramMessage(taskParams, webhookName);
+    await sendTelegramMessage(taskParams, webhookName, task);
   } catch (e: any) {
     console.error('Failed to send telegram message:', e.message);
   }
