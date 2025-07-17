@@ -18,6 +18,8 @@ webhooks:
     pipeline: Web
     project: Website
     webhook_path: /tilda
+    tagsByTitle:
+      "Прямой эфир": "Рег"
 queue:
   max_attempts: 12
   start_delay: 5
