@@ -6,6 +6,9 @@ webhooks:
     pipeline: Sales
     project: Website
     leadSource: AMOCRM
+    projectTags:
+      tag1: project1
+      other_project: other project
   - name: manychat
     leadSource: ManyChat
     tags: [bot]

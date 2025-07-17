@@ -14,6 +14,7 @@ export const webhookName = 'amocrm';
 
 export interface AmocrmConfig extends WebhookItem {
   token?: string;
+  projectTags?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as AmocrmConfig;
@@ -231,6 +232,17 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export function applyProjectTags(taskParams, projectTags) {
+  if (!projectTags || !Array.isArray(taskParams.tags)) return taskParams;
+  for (const tag of taskParams.tags) {
+    if (projectTags[tag]) {
+      taskParams.project = projectTags[tag];
+      break;
+    }
+  }
+  return taskParams;
+}
+
 async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebhookResult> {
   const token = webhookConf?.token;
   const webhookDelay = (config.queue?.start_delay ?? 5) * 1000;
@@ -284,6 +296,7 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   }
 
   appendDefaults(taskParams, webhookConf);
+  applyProjectTags(taskParams, webhookConf?.projectTags);
 
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);

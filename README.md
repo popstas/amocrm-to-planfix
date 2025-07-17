@@ -95,7 +95,7 @@ npm run test-webhook -- <path-to-json>
 ## Configuration
 
 The application reads settings from `config.yml`. Override the location with the `CONFIG` environment variable.
-Each webhook entry may specify optional `tags`, `pipeline`, `project` and `leadSource` values which will be added to created tasks if they are not already set.
+Each webhook entry may specify optional `tags`, `pipeline`, `project`, `leadSource` and `projectTags` values which will be added to created tasks if they are not already set.
 Example:
 
 ```yml
@@ -106,6 +106,9 @@ webhooks:
     pipeline: Sales
     project: Website
     leadSource: AMOCRM
+    projectTags:
+      tag1: project1
+      other_project: other project
 queue:
   max_attempts: 12
   start_delay: 1000
