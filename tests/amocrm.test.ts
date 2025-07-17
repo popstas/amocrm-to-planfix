@@ -16,6 +16,13 @@ describe('applyProjectTags', () => {
     expect(params.project).toBe('Project X');
   });
 
+  it('handles mixed case for config key and tag value', () => {
+    const params: any = { tags: ['taG1'] };
+    const projectTags = { TAG1: 'Project 1' };
+    applyProjectTags(params, projectTags);
+    expect(params.project).toBe('Project 1');
+  });
+
   it('leaves project unchanged when no tag matches', () => {
     const params: any = { tags: ['none'], project: 'Keep' };
     const projectTags = { tagX: 'Project X' };
@@ -37,6 +44,13 @@ describe('applyProjectPipelines', () => {
     const map = { Sales: 'SalesProj' };
     applyProjectPipelines(params, map);
     expect(params.project).toBe('SalesProj');
+  });
+
+  it('handles mixed case for config key and pipeline value', () => {
+    const params: any = { pipeline: 'piPeliNe', project: 'Old' };
+    const map = { PipeLine: 'MappedProj' };
+    applyProjectPipelines(params, map);
+    expect(params.project).toBe('MappedProj');
   });
 
   it('ignores when pipeline not mapped', () => {
