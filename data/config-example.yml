@@ -6,10 +6,10 @@ webhooks:
     pipeline: Sales
     project: Website
     leadSource: AMOCRM
-    projectTags:
+    projectByTags:
       tag1: project1
       other_project: other project
-    projectPipelines:
+    projectByPipelines:
       Sales: Website Sales
       Support: Support Project
       1000x: 1000x
@@ -25,6 +25,8 @@ webhooks:
     pipeline: Web
     project: Website
     webhook_path: /tilda
+    projectByUtmSource:
+      blog: Blog Project
     tagsByTitle:
       "Прямой эфир": "Рег"
 queue:

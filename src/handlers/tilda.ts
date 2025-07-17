@@ -1,6 +1,6 @@
 import { sendToTargets } from '../target.js';
 import { getWebhookConfig } from '../config.js';
-import { appendDefaults } from './utils.js';
+import { appendDefaults, matchByConfig } from './utils.js';
 import type { ProcessWebhookResult } from './types.js';
 import type { WebhookItem } from '../config.js';
 
@@ -9,6 +9,7 @@ export const webhookName = 'tilda';
 export interface TildaConfig extends WebhookItem {
   leadSource?: string;
   tagsByTitle?: Record<string, string>;
+  projectByUtmSource?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as TildaConfig;
@@ -126,6 +127,14 @@ function appendTagsByTitle(taskParams: any, formTitle: string | undefined, conf 
   return taskParams;
 }
 
+function applyProjectByUtmSource(taskParams: any, conf = webhookConf): any {
+  const utm = taskParams.fields?.utm_source;
+  if (!utm || !conf?.projectByUtmSource) return taskParams;
+  const mapped = matchByConfig(conf.projectByUtmSource, utm);
+  if (mapped) taskParams.project = mapped;
+  return taskParams;
+}
+
 export async function processWebhook({ headers = {}, body }: { headers: any; body: any }): Promise<ProcessWebhookResult> {
   if (isTestWebhook(body)) {
     return { body, lead: {}, taskParams: {}, task: {} };
@@ -134,6 +143,7 @@ export async function processWebhook({ headers = {}, body }: { headers: any; bod
   appendDefaults(taskParams, webhookConf);
   const formTitle: string | undefined = body.formname || body.FORMNAME;
   appendTagsByTitle(taskParams, formTitle, webhookConf);
+  applyProjectByUtmSource(taskParams, webhookConf);
   const task = await sendToTargets(taskParams, webhookName);
   return { body, lead: body, taskParams, task };
 }
