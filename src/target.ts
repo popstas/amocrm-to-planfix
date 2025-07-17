@@ -11,6 +11,8 @@ export async function createPlanfixTask(taskParams: any) {
     throw new Error('planfix_agent.url is required');
   }
 
+  if (taskParams.instagram) taskParams.instagram_custom = taskParams.instagram;
+
   const res = await fetch(url, {
     method: "POST",
     headers: {

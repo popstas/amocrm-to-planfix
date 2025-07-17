@@ -97,6 +97,8 @@ npm run test-webhook -- <path-to-json>
 The application reads settings from `config.yml`. Override the location with the `CONFIG` environment variable.
 Each webhook entry may specify optional `tags`, `pipeline`, `project` and `leadSource` values which will be added to created tasks if they are not already set.
 For the `amocrm` webhook you can additionally define `projectTags` and `projectPipelines` to map specific tags or pipeline names to Planfix projects. Matching is case‑insensitive and treats similar‑looking Latin and Cyrillic letters as the same.
+For Tilda webhooks you can also define `tagsByTitle` to add tags when the form title contains a configured keyword.
+
 Example:
 
 ```yml
@@ -113,6 +115,14 @@ webhooks:
     projectPipelines:
       Sales: Website Sales
       Support: Support Project
+  - name: tilda
+    webhook_path: /tilda
+    tags: [landing]
+    pipeline: Web
+    project: Website
+    leadSource: Tilda
+    tagsByTitle:
+      "Прямой эфир": "Рег"
 queue:
   max_attempts: 12
   start_delay: 1000

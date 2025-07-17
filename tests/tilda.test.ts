@@ -54,6 +54,12 @@ describe('tilda handler', () => {
     expect(res.task).toEqual({ url: 'ok' });
   });
 
+  it('adds tag based on form title', async () => {
+    const matchBody = { name: 'Test', FORMNAME: 'Прямой эфир 16.07' } as any;
+    const res = await processWebhook({ headers, body: matchBody });
+    expect(res.taskParams.tags).toEqual(['landing', 'Рег']);
+  });
+
   it('handles capitalized field names and telegram field', () => {
     const capBody = {
       Name: 'Jane Doe',
