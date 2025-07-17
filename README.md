@@ -95,7 +95,8 @@ npm run test-webhook -- <path-to-json>
 ## Configuration
 
 The application reads settings from `config.yml`. Override the location with the `CONFIG` environment variable.
-Each webhook entry may specify optional `tags`, `pipeline`, `project`, `leadSource` and `projectTags` values which will be added to created tasks if they are not already set.
+Each webhook entry may specify optional `tags`, `pipeline`, `project` and `leadSource` values which will be added to created tasks if they are not already set.
+For the `amocrm` webhook you can additionally define `projectTags` and `projectPipelines` to map specific tags or pipeline names to Planfix projects.
 Example:
 
 ```yml
@@ -109,6 +110,9 @@ webhooks:
     projectTags:
       tag1: project1
       other_project: other project
+    projectPipelines:
+      Sales: Website Sales
+      Support: Support Project
 queue:
   max_attempts: 12
   start_delay: 1000

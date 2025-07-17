@@ -9,6 +9,9 @@ webhooks:
     projectTags:
       tag1: project1
       other_project: other project
+    projectPipelines:
+      Sales: Website Sales
+      Support: Support Project
   - name: manychat
     leadSource: ManyChat
     tags: [bot]

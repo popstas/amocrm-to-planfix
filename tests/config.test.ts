@@ -21,4 +21,9 @@ describe('config loader', () => {
     const amo = config.webhooks[0] as any;
     expect(amo.projectTags.tagX).toBe('Project X');
   });
+
+  it('loads projectPipelines config', () => {
+    const amo = config.webhooks[0] as any;
+    expect(amo.projectPipelines.Sales).toBe('SalesProj');
+  });
 });

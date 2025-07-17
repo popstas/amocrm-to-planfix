@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyProjectTags } from '../src/handlers/amocrm.ts';
+import { applyProjectTags, applyProjectPipelines } from '../src/handlers/amocrm.ts';
 
 describe('applyProjectTags', () => {
   it('sets project based on tag mapping', () => {
@@ -14,5 +14,21 @@ describe('applyProjectTags', () => {
     const projectTags = { tagX: 'Project X' };
     applyProjectTags(params, projectTags);
     expect(params.project).toBe('Keep');
+  });
+});
+
+describe('applyProjectPipelines', () => {
+  it('overrides project based on pipeline', () => {
+    const params: any = { pipeline: 'Sales', project: 'Old' };
+    const map = { Sales: 'SalesProj' };
+    applyProjectPipelines(params, map);
+    expect(params.project).toBe('SalesProj');
+  });
+
+  it('ignores when pipeline not mapped', () => {
+    const params: any = { pipeline: 'Other', project: 'Old' };
+    const map = { Sales: 'SalesProj' };
+    applyProjectPipelines(params, map);
+    expect(params.project).toBe('Old');
   });
 });

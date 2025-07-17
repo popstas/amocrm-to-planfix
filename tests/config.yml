@@ -3,6 +3,8 @@ webhooks:
     webhook_path: /testhook
     projectTags:
       tagX: Project X
+    projectPipelines:
+      Sales: SalesProj
   - name: manychat
     leadSource: ManyChat
     webhook_path: /manychat
