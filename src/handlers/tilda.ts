@@ -112,6 +112,20 @@ function isTestWebhook(body: any): boolean {
   return body.test === 'test';
 }
 
+function appendTagsByTitle(taskParams: any, formTitle: string | undefined, conf = webhookConf): any {
+  if (!formTitle || !conf?.tagsByTitle) return taskParams;
+  const tags = new Set<string>(taskParams.tags || []);
+  for (const [title, tag] of Object.entries(conf.tagsByTitle)) {
+    if (formTitle.toLowerCase().includes(title.toLowerCase())) {
+      tags.add(tag);
+    }
+  }
+  if (tags.size) {
+    taskParams.tags = Array.from(tags);
+  }
+  return taskParams;
+}
+
 export async function processWebhook({ headers = {}, body }: { headers: any; body: any }): Promise<ProcessWebhookResult> {
   if (isTestWebhook(body)) {
     return { body, lead: {}, taskParams: {}, task: {} };
@@ -119,17 +133,7 @@ export async function processWebhook({ headers = {}, body }: { headers: any; bod
   const taskParams = extractTaskParams(body, headers);
   appendDefaults(taskParams, webhookConf);
   const formTitle: string | undefined = body.formname || body.FORMNAME;
-  if (formTitle && webhookConf?.tagsByTitle) {
-    const tags = new Set<string>(taskParams.tags || []);
-    for (const [title, tag] of Object.entries(webhookConf.tagsByTitle)) {
-      if (formTitle.toLowerCase().includes(title.toLowerCase())) {
-        tags.add(tag);
-      }
-    }
-    if (tags.size) {
-      taskParams.tags = Array.from(tags);
-    }
-  }
+  appendTagsByTitle(taskParams, formTitle, webhookConf);
   const task = await sendToTargets(taskParams, webhookName);
   return { body, lead: body, taskParams, task };
 }
