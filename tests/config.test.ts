@@ -17,13 +17,20 @@ describe('config loader', () => {
     expect(config.planfix_agent?.url).toBe('http://example.com');
   });
 
-  it('loads projectTags config', () => {
+  it('loads projectByTags config', () => {
     const amo = config.webhooks[0] as any;
-    expect(amo.projectTags.tagX).toBe('Project X');
+    expect(amo.projectByTags.tagX).toBe('Project X');
   });
 
-  it('loads projectPipelines config', () => {
+  it('loads projectByPipelines config', () => {
     const amo = config.webhooks[0] as any;
-    expect(amo.projectPipelines.Sales).toBe('SalesProj');
+    expect(amo.projectByPipelines.Sales).toBe('SalesProj');
+  });
+
+  it('loads projectByUtmSource config', () => {
+    const tilda = config.webhooks.find(w => w.name === 'tilda') as any;
+    expect(tilda.projectByUtmSource.src).toBe('SrcProj');
+    expect(tilda.tagByUtmSource.src).toBe('SrcTag');
+    expect(tilda.tagByTitle['Прямой эфир']).toBe('Рег');
   });
 });

@@ -22,4 +22,34 @@ export function appendDefaults(taskParams: any, conf: WebhookDefaults | undefine
   return taskParams;
 }
 
-export default { appendDefaults };
+export function normalizeKey(value: string): string {
+  const cyrMap: Record<string, string> = {
+    'а': 'a',
+    'е': 'e',
+    'ё': 'e',
+    'о': 'o',
+    'р': 'p',
+    'с': 'c',
+    'х': 'x',
+    'у': 'y',
+    'к': 'k',
+    'т': 't',
+    'в': 'b',
+    'м': 'm',
+    'н': 'h',
+  };
+  return value
+    .toLowerCase()
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[аёеорсхуктвмн]/g, ch => cyrMap[ch] || ch);
+}
+
+export function matchByConfig<T>(map: Record<string, T> | undefined, value: string | undefined): T | undefined {
+  if (!map || !value) return undefined;
+  const normMap = Object.fromEntries(
+    Object.entries(map).map(([k, v]) => [normalizeKey(k), v])
+  );
+  return normMap[normalizeKey(value)];
+}
+
+export default { appendDefaults, normalizeKey, matchByConfig };

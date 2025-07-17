@@ -5,3 +5,4 @@
 - Use environment variables only for `CONFIG`, `PORT` and `NODE_ENV`.
 - Create helper functions like `appendTagsByTitle` for config entry like `tagsByTitle`
 - All matchers by config entries `by` should be case-insensitive by config key and taskParams value
+- In README.md add empty line between paragraphs

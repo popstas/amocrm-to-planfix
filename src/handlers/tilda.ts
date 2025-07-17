@@ -1,6 +1,6 @@
 import { sendToTargets } from '../target.js';
 import { getWebhookConfig } from '../config.js';
-import { appendDefaults } from './utils.js';
+import { appendDefaults, matchByConfig } from './utils.js';
 import type { ProcessWebhookResult } from './types.js';
 import type { WebhookItem } from '../config.js';
 
@@ -8,7 +8,9 @@ export const webhookName = 'tilda';
 
 export interface TildaConfig extends WebhookItem {
   leadSource?: string;
-  tagsByTitle?: Record<string, string>;
+  tagByTitle?: Record<string, string>;
+  tagByUtmSource?: Record<string, string>;
+  projectByUtmSource?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as TildaConfig;
@@ -113,14 +115,34 @@ function isTestWebhook(body: any): boolean {
 }
 
 function appendTagsByTitle(taskParams: any, formTitle: string | undefined, conf = webhookConf): any {
-  if (!formTitle || !conf?.tagsByTitle) return taskParams;
+  if (!formTitle || !conf?.tagByTitle) return taskParams;
   const tags = new Set<string>(taskParams.tags || []);
-  for (const [title, tag] of Object.entries(conf.tagsByTitle)) {
+  for (const [title, tag] of Object.entries(conf.tagByTitle)) {
     if (formTitle.toLowerCase().includes(title.toLowerCase())) {
       tags.add(tag);
     }
   }
   if (tags.size) {
+    taskParams.tags = Array.from(tags);
+  }
+  return taskParams;
+}
+
+function applyProjectByUtmSource(taskParams: any, conf = webhookConf): any {
+  const utm = taskParams.fields?.utm_source;
+  if (!utm || !conf?.projectByUtmSource) return taskParams;
+  const mapped = matchByConfig(conf.projectByUtmSource, utm);
+  if (mapped) taskParams.project = mapped;
+  return taskParams;
+}
+
+function appendTagByUtmSource(taskParams: any, conf = webhookConf): any {
+  const utm = taskParams.fields?.utm_source;
+  if (!utm || !conf?.tagByUtmSource) return taskParams;
+  const mapped = matchByConfig(conf.tagByUtmSource, utm);
+  if (mapped) {
+    const tags = new Set<string>(taskParams.tags || []);
+    tags.add(mapped);
     taskParams.tags = Array.from(tags);
   }
   return taskParams;
@@ -134,6 +156,8 @@ export async function processWebhook({ headers = {}, body }: { headers: any; bod
   appendDefaults(taskParams, webhookConf);
   const formTitle: string | undefined = body.formname || body.FORMNAME;
   appendTagsByTitle(taskParams, formTitle, webhookConf);
+  appendTagByUtmSource(taskParams, webhookConf);
+  applyProjectByUtmSource(taskParams, webhookConf);
   const task = await sendToTargets(taskParams, webhookName);
   return { body, lead: body, taskParams, task };
 }
