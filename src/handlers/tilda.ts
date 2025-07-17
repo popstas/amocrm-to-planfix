@@ -8,6 +8,7 @@ export const webhookName = 'tilda';
 
 export interface TildaConfig extends WebhookItem {
   leadSource?: string;
+  tagsByTitle?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as TildaConfig;
@@ -117,6 +118,18 @@ export async function processWebhook({ headers = {}, body }: { headers: any; bod
   }
   const taskParams = extractTaskParams(body, headers);
   appendDefaults(taskParams, webhookConf);
+  const formTitle: string | undefined = body.formname || body.FORMNAME;
+  if (formTitle && webhookConf?.tagsByTitle) {
+    const tags = new Set<string>(taskParams.tags || []);
+    for (const [title, tag] of Object.entries(webhookConf.tagsByTitle)) {
+      if (formTitle.toLowerCase().includes(title.toLowerCase())) {
+        tags.add(tag);
+      }
+    }
+    if (tags.size) {
+      taskParams.tags = Array.from(tags);
+    }
+  }
   const task = await sendToTargets(taskParams, webhookName);
   return { body, lead: body, taskParams, task };
 }
