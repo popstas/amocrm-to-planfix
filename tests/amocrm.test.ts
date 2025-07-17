@@ -23,6 +23,13 @@ describe('applyProjectTags', () => {
     expect(params.project).toBe('Project 1');
   });
 
+  it('matches cyrillic look-alike letters in tags', () => {
+    const params: any = { tags: ['tagХ'] };
+    const projectTags = { tagx: 'Project X' };
+    applyProjectTags(params, projectTags);
+    expect(params.project).toBe('Project X');
+  });
+
   it('leaves project unchanged when no tag matches', () => {
     const params: any = { tags: ['none'], project: 'Keep' };
     const projectTags = { tagX: 'Project X' };
@@ -51,6 +58,13 @@ describe('applyProjectPipelines', () => {
     const map = { PipeLine: 'MappedProj' };
     applyProjectPipelines(params, map);
     expect(params.project).toBe('MappedProj');
+  });
+
+  it('matches cyrillic look-alike letters in pipeline name', () => {
+    const params: any = { pipeline: '1000Х', project: 'Old' };
+    const map = { '1000x': '1000x' };
+    applyProjectPipelines(params, map);
+    expect(params.project).toBe('1000x');
   });
 
   it('ignores when pipeline not mapped', () => {

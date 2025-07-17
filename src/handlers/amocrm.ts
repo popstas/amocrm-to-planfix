@@ -233,13 +233,35 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function normalizeKey(value: string): string {
+  const cyrMap: Record<string, string> = {
+    'а': 'a',
+    'е': 'e',
+    'ё': 'e',
+    'о': 'o',
+    'р': 'p',
+    'с': 'c',
+    'х': 'x',
+    'у': 'y',
+    'к': 'k',
+    'т': 't',
+    'в': 'b',
+    'м': 'm',
+    'н': 'h',
+  };
+  return value
+    .toLowerCase()
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[аёеорсхуктвмн]/g, ch => cyrMap[ch] || ch);
+}
+
 export function applyProjectTags(taskParams, projectTags) {
   if (!projectTags || !Array.isArray(taskParams.tags)) return taskParams;
   const map = Object.fromEntries(
-    Object.entries(projectTags).map(([k, v]) => [k.toLowerCase(), v])
+    Object.entries(projectTags).map(([k, v]) => [normalizeKey(k), v])
   );
   for (const tag of taskParams.tags) {
-    const mapped = map[tag.toLowerCase()];
+    const mapped = map[normalizeKey(tag)];
     if (mapped) {
       taskParams.project = mapped;
       break;
@@ -251,9 +273,9 @@ export function applyProjectTags(taskParams, projectTags) {
 export function applyProjectPipelines(taskParams, projectPipelines) {
   if (!projectPipelines || !taskParams.pipeline) return taskParams;
   const map = Object.fromEntries(
-    Object.entries(projectPipelines).map(([k, v]) => [k.toLowerCase(), v])
+    Object.entries(projectPipelines).map(([k, v]) => [normalizeKey(k), v])
   );
-  const mapped = map[taskParams.pipeline.toLowerCase()];
+  const mapped = map[normalizeKey(taskParams.pipeline)];
   if (mapped) taskParams.project = mapped;
   return taskParams;
 }

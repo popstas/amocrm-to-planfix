@@ -12,6 +12,7 @@ webhooks:
     projectPipelines:
       Sales: Website Sales
       Support: Support Project
+      1000x: 1000x
   - name: manychat
     leadSource: ManyChat
     tags: [bot]
