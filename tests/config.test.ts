@@ -30,5 +30,7 @@ describe('config loader', () => {
   it('loads projectByUtmSource config', () => {
     const tilda = config.webhooks.find(w => w.name === 'tilda') as any;
     expect(tilda.projectByUtmSource.src).toBe('SrcProj');
+    expect(tilda.tagByUtmSource.src).toBe('SrcTag');
+    expect(tilda.tagByTitle['Прямой эфир']).toBe('Рег');
   });
 });

@@ -27,7 +27,9 @@ webhooks:
     webhook_path: /tilda
     projectByUtmSource:
       blog: Blog Project
-    tagsByTitle:
+    tagByUtmSource:
+      src: Src Tag
+    tagByTitle:
       "Прямой эфир": "Рег"
 queue:
   max_attempts: 12
