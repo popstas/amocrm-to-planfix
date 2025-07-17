@@ -235,9 +235,13 @@ function delay(ms) {
 
 export function applyProjectTags(taskParams, projectTags) {
   if (!projectTags || !Array.isArray(taskParams.tags)) return taskParams;
+  const map = Object.fromEntries(
+    Object.entries(projectTags).map(([k, v]) => [k.toLowerCase(), v])
+  );
   for (const tag of taskParams.tags) {
-    if (projectTags[tag]) {
-      taskParams.project = projectTags[tag];
+    const mapped = map[tag.toLowerCase()];
+    if (mapped) {
+      taskParams.project = mapped;
       break;
     }
   }
@@ -246,7 +250,10 @@ export function applyProjectTags(taskParams, projectTags) {
 
 export function applyProjectPipelines(taskParams, projectPipelines) {
   if (!projectPipelines || !taskParams.pipeline) return taskParams;
-  const mapped = projectPipelines[taskParams.pipeline];
+  const map = Object.fromEntries(
+    Object.entries(projectPipelines).map(([k, v]) => [k.toLowerCase(), v])
+  );
+  const mapped = map[taskParams.pipeline.toLowerCase()];
   if (mapped) taskParams.project = mapped;
   return taskParams;
 }

@@ -9,6 +9,13 @@ describe('applyProjectTags', () => {
     expect(params.project).toBe('Project X');
   });
 
+  it('matches tag names case-insensitively', () => {
+    const params: any = { tags: ['TAGx'] };
+    const projectTags = { tagx: 'Project X' };
+    applyProjectTags(params, projectTags);
+    expect(params.project).toBe('Project X');
+  });
+
   it('leaves project unchanged when no tag matches', () => {
     const params: any = { tags: ['none'], project: 'Keep' };
     const projectTags = { tagX: 'Project X' };
@@ -20,6 +27,13 @@ describe('applyProjectTags', () => {
 describe('applyProjectPipelines', () => {
   it('overrides project based on pipeline', () => {
     const params: any = { pipeline: 'Sales', project: 'Old' };
+    const map = { Sales: 'SalesProj' };
+    applyProjectPipelines(params, map);
+    expect(params.project).toBe('SalesProj');
+  });
+
+  it('matches pipeline names case-insensitively', () => {
+    const params: any = { pipeline: 'sales', project: 'Old' };
     const map = { Sales: 'SalesProj' };
     applyProjectPipelines(params, map);
     expect(params.project).toBe('SalesProj');
