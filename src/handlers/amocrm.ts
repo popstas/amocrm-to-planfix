@@ -14,6 +14,8 @@ export const webhookName = 'amocrm';
 
 export interface AmocrmConfig extends WebhookItem {
   token?: string;
+  projectTags?: Record<string, string>;
+  projectPipelines?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as AmocrmConfig;
@@ -231,6 +233,53 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function normalizeKey(value: string): string {
+  const cyrMap: Record<string, string> = {
+    'а': 'a',
+    'е': 'e',
+    'ё': 'e',
+    'о': 'o',
+    'р': 'p',
+    'с': 'c',
+    'х': 'x',
+    'у': 'y',
+    'к': 'k',
+    'т': 't',
+    'в': 'b',
+    'м': 'm',
+    'н': 'h',
+  };
+  return value
+    .toLowerCase()
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[аёеорсхуктвмн]/g, ch => cyrMap[ch] || ch);
+}
+
+export function applyProjectTags(taskParams, projectTags) {
+  if (!projectTags || !Array.isArray(taskParams.tags)) return taskParams;
+  const map = Object.fromEntries(
+    Object.entries(projectTags).map(([k, v]) => [normalizeKey(k), v])
+  );
+  for (const tag of taskParams.tags) {
+    const mapped = map[normalizeKey(tag)];
+    if (mapped) {
+      taskParams.project = mapped;
+      break;
+    }
+  }
+  return taskParams;
+}
+
+export function applyProjectPipelines(taskParams, projectPipelines) {
+  if (!projectPipelines || !taskParams.pipeline) return taskParams;
+  const map = Object.fromEntries(
+    Object.entries(projectPipelines).map(([k, v]) => [normalizeKey(k), v])
+  );
+  const mapped = map[normalizeKey(taskParams.pipeline)];
+  if (mapped) taskParams.project = mapped;
+  return taskParams;
+}
+
 async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebhookResult> {
   const token = webhookConf?.token;
   const webhookDelay = (config.queue?.start_delay ?? 5) * 1000;
@@ -284,6 +333,8 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   }
 
   appendDefaults(taskParams, webhookConf);
+  applyProjectTags(taskParams, webhookConf?.projectTags);
+  applyProjectPipelines(taskParams, webhookConf?.projectPipelines);
 
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);

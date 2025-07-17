@@ -16,4 +16,14 @@ describe('config loader', () => {
   it('loads planfix agent config', () => {
     expect(config.planfix_agent?.url).toBe('http://example.com');
   });
+
+  it('loads projectTags config', () => {
+    const amo = config.webhooks[0] as any;
+    expect(amo.projectTags.tagX).toBe('Project X');
+  });
+
+  it('loads projectPipelines config', () => {
+    const amo = config.webhooks[0] as any;
+    expect(amo.projectPipelines.Sales).toBe('SalesProj');
+  });
 });
