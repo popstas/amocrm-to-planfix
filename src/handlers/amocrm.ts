@@ -205,11 +205,11 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
     }
   }
   Object.assign(fields, utm);
+  Object.assign(params, utm);
   params.fields = fields;
-  if (params.fields['utm_source']) {
-    params.leadSource = params.fields['utm_source'];
-  }
-  else if (params.fields['Источник']) {
+  if (params.utm_source) {
+    params.leadSource = params.utm_source;
+  } else if (params.fields['Источник']) {
     params.leadSource = params.fields['Источник'];
   }
 

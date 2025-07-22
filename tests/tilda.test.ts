@@ -102,6 +102,9 @@ describe('tilda handler', () => {
       utm_medium: 'med',
       utm_campaign: 'camp',
     });
+    expect(params.utm_source).toBe('src');
+    expect(params.utm_medium).toBe('med');
+    expect(params.utm_campaign).toBe('camp');
   });
 
   it('extracts utm fields from body', () => {
@@ -119,6 +122,9 @@ describe('tilda handler', () => {
       utm_medium: 'med',
       utm_campaign: 'camp',
     });
+    expect(params.utm_source).toBe('src');
+    expect(params.utm_medium).toBe('med');
+    expect(params.utm_campaign).toBe('camp');
   });
 
   it('sets project based on utm_source', async () => {
