@@ -14,8 +14,8 @@ export const webhookName = 'amocrm';
 
 export interface AmocrmConfig extends WebhookItem {
   token?: string;
-  projectByTags?: Record<string, string>;
-  projectByPipelines?: Record<string, string>;
+  projectByTag?: Record<string, string>;
+  projectByPipeline?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as AmocrmConfig;
@@ -233,10 +233,10 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function applyProjectByTags(taskParams, projectByTags) {
-  if (!projectByTags || !Array.isArray(taskParams.tags)) return taskParams;
+export function applyProjectByTag(taskParams, projectByTag) {
+  if (!projectByTag || !Array.isArray(taskParams.tags)) return taskParams;
   for (const tag of taskParams.tags) {
-    const mapped = matchByConfig(projectByTags, tag);
+    const mapped = matchByConfig(projectByTag, tag);
     if (mapped) {
       taskParams.project = mapped;
       break;
@@ -245,9 +245,9 @@ export function applyProjectByTags(taskParams, projectByTags) {
   return taskParams;
 }
 
-export function applyProjectByPipelines(taskParams, projectByPipelines) {
-  if (!projectByPipelines || !taskParams.pipeline) return taskParams;
-  const mapped = matchByConfig(projectByPipelines, taskParams.pipeline);
+export function applyProjectByPipeline(taskParams, projectByPipeline) {
+  if (!projectByPipeline || !taskParams.pipeline) return taskParams;
+  const mapped = matchByConfig(projectByPipeline, taskParams.pipeline);
   if (mapped) taskParams.project = mapped;
   return taskParams;
 }
@@ -305,8 +305,8 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   }
 
   appendDefaults(taskParams, webhookConf);
-  applyProjectByTags(taskParams, webhookConf?.projectByTags);
-  applyProjectByPipelines(taskParams, webhookConf?.projectByPipelines);
+  applyProjectByTag(taskParams, webhookConf?.projectByTag);
+  applyProjectByPipeline(taskParams, webhookConf?.projectByPipeline);
 
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);

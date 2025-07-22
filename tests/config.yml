@@ -1,9 +1,9 @@
 webhooks:
   - name: amocrm
     webhook_path: /testhook
-    projectByTags:
+    projectByTag:
       tagX: Project X
-    projectByPipelines:
+    projectByPipeline:
       Sales: SalesProj
   - name: manychat
     leadSource: ManyChat
