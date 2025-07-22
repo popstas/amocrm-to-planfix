@@ -57,18 +57,48 @@ export function extractTaskParams(body: any, headers: any): any {
   const fields: any = {};
   const lines: string[] = [];
 
+  const utmSourceField = findField(body, [/^utm[ _-]?source$/i]);
+  if (utmSourceField.key) {
+    fields.utm_source = utmSourceField.value;
+    params.utm_source = utmSourceField.value;
+    recognized.add(utmSourceField.key.toLowerCase());
+  }
+
+  const utmMediumField = findField(body, [/^utm[ _-]?medium$/i]);
+  if (utmMediumField.key) {
+    fields.utm_medium = utmMediumField.value;
+    params.utm_medium = utmMediumField.value;
+    recognized.add(utmMediumField.key.toLowerCase());
+  }
+
+  const utmCampaignField = findField(body, [/^utm[ _-]?campaign$/i]);
+  if (utmCampaignField.key) {
+    fields.utm_campaign = utmCampaignField.value;
+    params.utm_campaign = utmCampaignField.value;
+    recognized.add(utmCampaignField.key.toLowerCase());
+  }
+
   if (headers?.referer) {
     try {
       const url = new URL(headers.referer);
-      const params = url.searchParams;
-      const utmSource = params.get('utm_source');
-      const utmMedium = params.get('utm_medium');
-      const utmCampaign = params.get('utm_campaign');
-      if (utmSource) fields.utm_source = utmSource;
-      if (utmMedium) fields.utm_medium = utmMedium;
-      if (utmCampaign) fields.utm_campaign = utmCampaign;
-      params.delete('mcp_token');
-      const search = params.toString();
+      const searchParams = url.searchParams;
+      const utmSource = searchParams.get('utm_source');
+      const utmMedium = searchParams.get('utm_medium');
+      const utmCampaign = searchParams.get('utm_campaign');
+      if (utmSource) {
+        fields.utm_source = utmSource;
+        params.utm_source ||= utmSource;
+      }
+      if (utmMedium) {
+        fields.utm_medium = utmMedium;
+        params.utm_medium ||= utmMedium;
+      }
+      if (utmCampaign) {
+        fields.utm_campaign = utmCampaign;
+        params.utm_campaign ||= utmCampaign;
+      }
+      searchParams.delete('mcp_token');
+      const search = searchParams.toString();
       url.search = search ? `?${search}` : '';
       fields.referer = url.toString();
     } catch {
