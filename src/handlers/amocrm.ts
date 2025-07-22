@@ -16,6 +16,7 @@ export interface AmocrmConfig extends WebhookItem {
   token?: string;
   projectByTag?: Record<string, string>;
   projectByPipeline?: Record<string, string>;
+  projectByUtmMedium?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as AmocrmConfig;
@@ -258,6 +259,14 @@ export function applyProjectByPipeline(taskParams, projectByPipeline) {
   return taskParams;
 }
 
+export function applyProjectByUtmMedium(taskParams, projectByUtmMedium) {
+  const medium = taskParams.fields?.utm_medium;
+  if (!projectByUtmMedium || !medium) return taskParams;
+  const mapped = matchByConfig(projectByUtmMedium, medium);
+  if (mapped) taskParams.project = mapped;
+  return taskParams;
+}
+
 async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebhookResult> {
   const token = webhookConf?.token;
   const webhookDelay = (config.queue?.start_delay ?? 5) * 1000;
@@ -313,6 +322,7 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   appendDefaults(taskParams, webhookConf);
   applyProjectByTag(taskParams, webhookConf?.projectByTag);
   applyProjectByPipeline(taskParams, webhookConf?.projectByPipeline);
+  applyProjectByUtmMedium(taskParams, webhookConf?.projectByUtmMedium);
 
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);

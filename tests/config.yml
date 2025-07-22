@@ -5,6 +5,8 @@ webhooks:
       tagX: Project X
     projectByPipeline:
       Sales: SalesProj
+    projectByUtmMedium:
+      med: MedProj
   - name: manychat
     leadSource: ManyChat
     webhook_path: /manychat
@@ -16,6 +18,8 @@ webhooks:
     webhook_path: /tilda
     projectByUtmSource:
       src: SrcProj
+    projectByUtmMedium:
+      med: MedProj
     tagByUtmSource:
       src: SrcTag
     tagByTitle:

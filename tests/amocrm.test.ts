@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyProjectByTag, applyProjectByPipeline } from '../src/handlers/amocrm.ts';
+import { applyProjectByTag, applyProjectByPipeline, applyProjectByUtmMedium } from '../src/handlers/amocrm.ts';
 
 describe('applyProjectByTag', () => {
   it('sets project based on tag mapping', () => {
@@ -72,5 +72,28 @@ describe('applyProjectByPipeline', () => {
     const map = { Sales: 'SalesProj' };
     applyProjectByPipeline(params, map);
     expect(params.project).toBe('Old');
+  });
+});
+
+describe('applyProjectByUtmMedium', () => {
+  it('sets project based on utm medium', () => {
+    const params: any = { fields: { utm_medium: 'Med' } };
+    const map = { med: 'MedProj' };
+    applyProjectByUtmMedium(params, map);
+    expect(params.project).toBe('MedProj');
+  });
+
+  it('matches medium names case-insensitively', () => {
+    const params: any = { fields: { utm_medium: 'MED' } };
+    const map = { med: 'MedProj' };
+    applyProjectByUtmMedium(params, map);
+    expect(params.project).toBe('MedProj');
+  });
+
+  it('ignores when medium not mapped', () => {
+    const params: any = { fields: { utm_medium: 'other' }, project: 'Keep' };
+    const map = { med: 'MedProj' };
+    applyProjectByUtmMedium(params, map);
+    expect(params.project).toBe('Keep');
   });
 });
