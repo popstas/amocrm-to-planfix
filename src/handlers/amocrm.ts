@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { config, getWebhookConfig } from '../config.js';
 import { sendToTargets } from '../target.js';
-import { appendDefaults, matchByConfig } from './utils.js';
+import { appendDefaults, matchByConfig, normalizeKey } from './utils.js';
 import type { WebhookItem } from '../config.js';
 import type { ProcessWebhookResult } from './types.js';
 import { fileURLToPath } from 'url';
@@ -187,7 +187,8 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
 
   const customFields = lead.custom_fields_values || lead.custom_fields || [];
   const customLines = [];
-  const fields = {};
+  const fields: Record<string, string> = {};
+  const utm: Record<string, string> = {};
   for (const f of customFields) {
     const name = f.field_name || f.name || f.field_code;
     if (!name) continue;
@@ -197,8 +198,13 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
     if (values.length) {
       fields[name] = values.join(", ");
       customLines.push(`${name}: ${values.join(", ")}`);
+      const norm = normalizeKey(name).replace(/[\s-]+/g, "_");
+      if (norm === "utm_source") utm.utm_source = values.join(", ");
+      if (norm === "utm_medium") utm.utm_medium = values.join(", ");
+      if (norm === "utm_campaign") utm.utm_campaign = values.join(", ");
     }
   }
+  Object.assign(fields, utm);
   params.fields = fields;
   if (params.fields['utm_source']) {
     params.leadSource = params.fields['utm_source'];

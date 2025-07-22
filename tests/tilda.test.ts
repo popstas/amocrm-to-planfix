@@ -104,6 +104,23 @@ describe('tilda handler', () => {
     });
   });
 
+  it('extracts utm fields from body', () => {
+    const params = extractTaskParams(
+      {
+        name: 'A',
+        Utm_Source: 'src',
+        'UTM MEDIUM': 'med',
+        'utm-campaign': 'camp',
+      } as any,
+      {}
+    );
+    expect(params.fields).toEqual({
+      utm_source: 'src',
+      utm_medium: 'med',
+      utm_campaign: 'camp',
+    });
+  });
+
   it('sets project based on utm_source', async () => {
     const hdrs = {
       referer: 'https://example.com/page?utm_source=SRC',

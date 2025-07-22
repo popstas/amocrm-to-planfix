@@ -57,6 +57,24 @@ export function extractTaskParams(body: any, headers: any): any {
   const fields: any = {};
   const lines: string[] = [];
 
+  const utmSourceField = findField(body, [/^utm[ _-]?source$/i]);
+  if (utmSourceField.key) {
+    fields.utm_source = utmSourceField.value;
+    recognized.add(utmSourceField.key.toLowerCase());
+  }
+
+  const utmMediumField = findField(body, [/^utm[ _-]?medium$/i]);
+  if (utmMediumField.key) {
+    fields.utm_medium = utmMediumField.value;
+    recognized.add(utmMediumField.key.toLowerCase());
+  }
+
+  const utmCampaignField = findField(body, [/^utm[ _-]?campaign$/i]);
+  if (utmCampaignField.key) {
+    fields.utm_campaign = utmCampaignField.value;
+    recognized.add(utmCampaignField.key.toLowerCase());
+  }
+
   if (headers?.referer) {
     try {
       const url = new URL(headers.referer);
