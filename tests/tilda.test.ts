@@ -135,6 +135,14 @@ describe('tilda handler', () => {
     expect(res.taskParams.project).toBe('SrcProj');
   });
 
+  it('sets project based on utm_medium', async () => {
+    const hdrs = {
+      referer: 'https://example.com/page?utm_medium=MED',
+    };
+    const res = await processWebhook({ headers: hdrs, body: { name: 'A' } as any });
+    expect(res.taskParams.project).toBe('MedProj');
+  });
+
   it('adds tag based on utm_source', async () => {
     const hdrs = {
       referer: 'https://example.com/page?utm_source=src',

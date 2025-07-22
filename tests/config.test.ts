@@ -27,6 +27,13 @@ describe('config loader', () => {
     expect(amo.projectByPipeline.Sales).toBe('SalesProj');
   });
 
+  it('loads projectByUtmMedium config', () => {
+    const amo = config.webhooks[0] as any;
+    const tilda = config.webhooks.find(w => w.name === 'tilda') as any;
+    expect(amo.projectByUtmMedium.med).toBe('MedProj');
+    expect(tilda.projectByUtmMedium.med).toBe('MedProj');
+  });
+
   it('loads projectByUtmSource config', () => {
     const tilda = config.webhooks.find(w => w.name === 'tilda') as any;
     expect(tilda.projectByUtmSource.src).toBe('SrcProj');

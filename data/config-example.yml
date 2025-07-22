@@ -13,6 +13,8 @@ webhooks:
       Sales: Website Sales
       Support: Support Project
       1000x: 1000x
+    projectByUtmMedium:
+      blog: Blog Project Medium
   - name: manychat
     leadSource: ManyChat
     tags: [bot]
@@ -27,6 +29,8 @@ webhooks:
     webhook_path: /tilda
     projectByUtmSource:
       blog: Blog Project
+    projectByUtmMedium:
+      med: MedProj
     tagByUtmSource:
       src: Src Tag
     tagByTitle:
