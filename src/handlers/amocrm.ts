@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { config, getWebhookConfig } from '../config.js';
 import { sendToTargets } from '../target.js';
-import { appendDefaults } from './utils.js';
+import { appendDefaults, matchByConfig } from './utils.js';
 import type { WebhookItem } from '../config.js';
 import type { ProcessWebhookResult } from './types.js';
 import { fileURLToPath } from 'url';
@@ -14,8 +14,8 @@ export const webhookName = 'amocrm';
 
 export interface AmocrmConfig extends WebhookItem {
   token?: string;
-  projectTags?: Record<string, string>;
-  projectPipelines?: Record<string, string>;
+  projectByTags?: Record<string, string>;
+  projectByPipelines?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as AmocrmConfig;
@@ -233,35 +233,10 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function normalizeKey(value: string): string {
-  const cyrMap: Record<string, string> = {
-    'а': 'a',
-    'е': 'e',
-    'ё': 'e',
-    'о': 'o',
-    'р': 'p',
-    'с': 'c',
-    'х': 'x',
-    'у': 'y',
-    'к': 'k',
-    'т': 't',
-    'в': 'b',
-    'м': 'm',
-    'н': 'h',
-  };
-  return value
-    .toLowerCase()
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[аёеорсхуктвмн]/g, ch => cyrMap[ch] || ch);
-}
-
-export function applyProjectTags(taskParams, projectTags) {
-  if (!projectTags || !Array.isArray(taskParams.tags)) return taskParams;
-  const map = Object.fromEntries(
-    Object.entries(projectTags).map(([k, v]) => [normalizeKey(k), v])
-  );
+export function applyProjectByTags(taskParams, projectByTags) {
+  if (!projectByTags || !Array.isArray(taskParams.tags)) return taskParams;
   for (const tag of taskParams.tags) {
-    const mapped = map[normalizeKey(tag)];
+    const mapped = matchByConfig(projectByTags, tag);
     if (mapped) {
       taskParams.project = mapped;
       break;
@@ -270,12 +245,9 @@ export function applyProjectTags(taskParams, projectTags) {
   return taskParams;
 }
 
-export function applyProjectPipelines(taskParams, projectPipelines) {
-  if (!projectPipelines || !taskParams.pipeline) return taskParams;
-  const map = Object.fromEntries(
-    Object.entries(projectPipelines).map(([k, v]) => [normalizeKey(k), v])
-  );
-  const mapped = map[normalizeKey(taskParams.pipeline)];
+export function applyProjectByPipelines(taskParams, projectByPipelines) {
+  if (!projectByPipelines || !taskParams.pipeline) return taskParams;
+  const mapped = matchByConfig(projectByPipelines, taskParams.pipeline);
   if (mapped) taskParams.project = mapped;
   return taskParams;
 }
@@ -333,8 +305,8 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   }
 
   appendDefaults(taskParams, webhookConf);
-  applyProjectTags(taskParams, webhookConf?.projectTags);
-  applyProjectPipelines(taskParams, webhookConf?.projectPipelines);
+  applyProjectByTags(taskParams, webhookConf?.projectByTags);
+  applyProjectByPipelines(taskParams, webhookConf?.projectByPipelines);
 
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);

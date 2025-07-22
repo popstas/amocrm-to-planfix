@@ -1,9 +1,9 @@
 webhooks:
   - name: amocrm
     webhook_path: /testhook
-    projectTags:
+    projectByTags:
       tagX: Project X
-    projectPipelines:
+    projectByPipelines:
       Sales: SalesProj
   - name: manychat
     leadSource: ManyChat
@@ -14,7 +14,11 @@ webhooks:
     pipeline: Web
     project: Website
     webhook_path: /tilda
-    tagsByTitle:
+    projectByUtmSource:
+      src: SrcProj
+    tagByUtmSource:
+      src: SrcTag
+    tagByTitle:
       "Прямой эфир": "Рег"
 queue:
   max_attempts: 2
