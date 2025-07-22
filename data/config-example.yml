@@ -6,10 +6,10 @@ webhooks:
     pipeline: Sales
     project: Website
     leadSource: AMOCRM
-    projectByTags:
+    projectByTag:
       tag1: project1
       other_project: other project
-    projectByPipelines:
+    projectByPipeline:
       Sales: Website Sales
       Support: Support Project
       1000x: 1000x
