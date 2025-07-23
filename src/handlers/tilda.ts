@@ -1,6 +1,6 @@
 import { sendToTargets } from '../target.js';
 import { getWebhookConfig } from '../config.js';
-import { appendDefaults, matchByConfig } from './utils.js';
+import { appendDefaults, matchByConfig, includesByConfig } from './utils.js';
 import type { ProcessWebhookResult } from './types.js';
 import type { WebhookItem } from '../config.js';
 
@@ -12,6 +12,7 @@ export interface TildaConfig extends WebhookItem {
   tagByUtmSource?: Record<string, string>;
   projectByUtmSource?: Record<string, string>;
   projectByUtmMedium?: Record<string, string>;
+  projectByUtmCampaign?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as TildaConfig;
@@ -175,6 +176,14 @@ function applyProjectByUtmMedium(taskParams: any, conf = webhookConf): any {
   return taskParams;
 }
 
+function applyProjectByUtmCampaign(taskParams: any, conf = webhookConf): any {
+  const campaign = taskParams.fields?.utm_campaign;
+  if (!campaign || !conf?.projectByUtmCampaign) return taskParams;
+  const mapped = includesByConfig(conf.projectByUtmCampaign, campaign);
+  if (mapped) taskParams.project = mapped;
+  return taskParams;
+}
+
 function appendTagByUtmSource(taskParams: any, conf = webhookConf): any {
   const utm = taskParams.fields?.utm_source;
   if (!utm || !conf?.tagByUtmSource) return taskParams;
@@ -198,6 +207,7 @@ export async function processWebhook({ headers = {}, body }: { headers: any; bod
   appendTagByUtmSource(taskParams, webhookConf);
   applyProjectByUtmSource(taskParams, webhookConf);
   applyProjectByUtmMedium(taskParams, webhookConf);
+  applyProjectByUtmCampaign(taskParams, webhookConf);
   const task = await sendToTargets(taskParams, webhookName);
   return { body, lead: body, taskParams, task };
 }

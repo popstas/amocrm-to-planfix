@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyProjectByTag, applyProjectByPipeline, applyProjectByUtmMedium } from '../src/handlers/amocrm.ts';
+import { applyProjectByTag, applyProjectByPipeline, applyProjectByUtmMedium, applyProjectByUtmCampaign } from '../src/handlers/amocrm.ts';
 
 describe('applyProjectByTag', () => {
   it('sets project based on tag mapping', () => {
@@ -94,6 +94,29 @@ describe('applyProjectByUtmMedium', () => {
     const params: any = { fields: { utm_medium: 'other' }, project: 'Keep' };
     const map = { med: 'MedProj' };
     applyProjectByUtmMedium(params, map);
+    expect(params.project).toBe('Keep');
+  });
+});
+
+describe('applyProjectByUtmCampaign', () => {
+  it('sets project when campaign includes key', () => {
+    const params: any = { fields: { utm_campaign: 'my-camp' } };
+    const map = { camp: 'CampProj' };
+    applyProjectByUtmCampaign(params, map);
+    expect(params.project).toBe('CampProj');
+  });
+
+  it('matches campaign names case-insensitively', () => {
+    const params: any = { fields: { utm_campaign: 'SALE-CAMP' } };
+    const map = { 'sale': 'SaleProj' };
+    applyProjectByUtmCampaign(params, map);
+    expect(params.project).toBe('SaleProj');
+  });
+
+  it('ignores when campaign not mapped', () => {
+    const params: any = { fields: { utm_campaign: 'other' }, project: 'Keep' };
+    const map = { foo: 'FooProj' };
+    applyProjectByUtmCampaign(params, map);
     expect(params.project).toBe('Keep');
   });
 });

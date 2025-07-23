@@ -7,6 +7,8 @@ webhooks:
       Sales: SalesProj
     projectByUtmMedium:
       med: MedProj
+    projectByUtmCampaign:
+      camp: CampProj
   - name: manychat
     leadSource: ManyChat
     webhook_path: /manychat
@@ -20,6 +22,8 @@ webhooks:
       src: SrcProj
     projectByUtmMedium:
       med: MedProj
+    projectByUtmCampaign:
+      camp: CampProj
     tagByUtmSource:
       src: SrcTag
     tagByTitle:

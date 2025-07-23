@@ -52,4 +52,15 @@ export function matchByConfig<T>(map: Record<string, T> | undefined, value: stri
   return normMap[normalizeKey(value)];
 }
 
-export default { appendDefaults, normalizeKey, matchByConfig };
+export function includesByConfig<T>(map: Record<string, T> | undefined, value: string | undefined): T | undefined {
+  if (!map || !value) return undefined;
+  const normValue = normalizeKey(value);
+  for (const [k, v] of Object.entries(map)) {
+    if (normValue.includes(normalizeKey(k))) {
+      return v;
+    }
+  }
+  return undefined;
+}
+
+export default { appendDefaults, normalizeKey, matchByConfig, includesByConfig };
