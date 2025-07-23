@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { config, getWebhookConfig } from '../config.js';
 import { sendToTargets } from '../target.js';
-import { appendDefaults, matchByConfig, normalizeKey } from './utils.js';
+import { appendDefaults, matchByConfig, normalizeKey, includesByConfig } from './utils.js';
 import type { WebhookItem } from '../config.js';
 import type { ProcessWebhookResult } from './types.js';
 import { fileURLToPath } from 'url';
@@ -17,6 +17,7 @@ export interface AmocrmConfig extends WebhookItem {
   projectByTag?: Record<string, string>;
   projectByPipeline?: Record<string, string>;
   projectByUtmMedium?: Record<string, string>;
+  projectByUtmCampaign?: Record<string, string>;
 }
 
 const webhookConf = getWebhookConfig(webhookName) as AmocrmConfig;
@@ -267,6 +268,14 @@ export function applyProjectByUtmMedium(taskParams, projectByUtmMedium) {
   return taskParams;
 }
 
+export function applyProjectByUtmCampaign(taskParams, projectByUtmCampaign) {
+  const campaign = taskParams.fields?.utm_campaign;
+  if (!projectByUtmCampaign || !campaign) return taskParams;
+  const mapped = includesByConfig(projectByUtmCampaign, campaign);
+  if (mapped) taskParams.project = mapped;
+  return taskParams;
+}
+
 async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebhookResult> {
   const token = webhookConf?.token;
   const webhookDelay = (config.queue?.start_delay ?? 5) * 1000;
@@ -323,6 +332,7 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   applyProjectByTag(taskParams, webhookConf?.projectByTag);
   applyProjectByPipeline(taskParams, webhookConf?.projectByPipeline);
   applyProjectByUtmMedium(taskParams, webhookConf?.projectByUtmMedium);
+  applyProjectByUtmCampaign(taskParams, webhookConf?.projectByUtmCampaign);
 
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);

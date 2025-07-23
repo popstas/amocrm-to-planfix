@@ -34,6 +34,13 @@ describe('config loader', () => {
     expect(tilda.projectByUtmMedium.med).toBe('MedProj');
   });
 
+  it('loads projectByUtmCampaign config', () => {
+    const amo = config.webhooks[0] as any;
+    const tilda = config.webhooks.find(w => w.name === 'tilda') as any;
+    expect(amo.projectByUtmCampaign.camp).toBe('CampProj');
+    expect(tilda.projectByUtmCampaign.camp).toBe('CampProj');
+  });
+
   it('loads projectByUtmSource config', () => {
     const tilda = config.webhooks.find(w => w.name === 'tilda') as any;
     expect(tilda.projectByUtmSource.src).toBe('SrcProj');

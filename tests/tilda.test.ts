@@ -143,6 +143,22 @@ describe('tilda handler', () => {
     expect(res.taskParams.project).toBe('MedProj');
   });
 
+  it('sets project based on utm_campaign substring', async () => {
+    const hdrs = {
+      referer: 'https://example.com/page?utm_campaign=WinterCamp',
+    };
+    const res = await processWebhook({ headers: hdrs, body: { name: 'A' } as any });
+    expect(res.taskParams.project).toBe('CampProj');
+  });
+
+  it('matches campaign names case-insensitively', async () => {
+    const hdrs = {
+      referer: 'https://example.com/page?utm_campaign=sPRING-cAmp',
+    };
+    const res = await processWebhook({ headers: hdrs, body: { name: 'A' } as any });
+    expect(res.taskParams.project).toBe('CampProj');
+  });
+
   it('adds tag based on utm_source', async () => {
     const hdrs = {
       referer: 'https://example.com/page?utm_source=src',
