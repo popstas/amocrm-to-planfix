@@ -19,6 +19,7 @@ export interface AmocrmConfig extends WebhookItem {
   projectByTitle?: Record<string, string>;
   projectByUtmMedium?: Record<string, string>;
   projectByUtmCampaign?: Record<string, string>;
+  ignoreFields?: string[];
 }
 
 const webhookConf = getWebhookConfig(webhookName) as AmocrmConfig;
@@ -180,6 +181,15 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
         const tg = f.values.find((v) => v.enum_code === "TELEGRAM");
         if (tg) params.telegram = tg.value;
       }
+      if (
+        !params.telegram &&
+        Array.isArray(f.values) &&
+        f.values[0] &&
+        ((typeof f.field_name === 'string' && /telegram|телеграм/i.test(f.field_name)) ||
+          (typeof f.field_code === 'string' && /telegram|телеграм/i.test(f.field_code)))
+      ) {
+        params.telegram = f.values[0].value;
+      }
     }
   }
 
@@ -192,9 +202,15 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
   const customLines = [];
   const fields: Record<string, string> = {};
   const utm: Record<string, string> = {};
+  const ignored = new Set(
+    (webhookConf?.ignoreFields ?? ['TRANID', '_ym_uid', 'FORMID', 'COOKIES']).map(
+      (n) => n.toLowerCase()
+    )
+  );
   for (const f of customFields) {
     const name = f.field_name || f.name || f.field_code;
     if (!name) continue;
+    if (ignored.has(String(name).toLowerCase())) continue;
     const values = Array.isArray(f.values)
       ? f.values.map((v) => v.value).filter(Boolean)
       : [];

@@ -100,6 +100,8 @@ For the `amocrm` webhook you can additionally define `projectByTag`, `projectByP
 
 For Tilda webhooks you can define `tagByTitle` to add a tag when the form title contains a configured keyword, `projectByTitle` to choose a project based on the form title, `tagByUtmSource` to map UTM sources to tags, and `projectByUtmSource`, `projectByUtmMedium` or `projectByUtmCampaign` to map UTM parameters to Planfix projects.
 
+Both handlers also support an `ignoreFields` option listing form fields that should be skipped when building the task description. By default the fields `TRANID`, `_ym_uid`, `FORMID` and `COOKIES` are ignored.
+
 Example:
 
 ```yml
@@ -122,6 +124,11 @@ webhooks:
       blog: Blog Project Medium
     projectByUtmCampaign:
       camp: Camp Project
+    ignoreFields:
+      - TRANID
+      - _ym_uid
+      - FORMID
+      - COOKIES
   - name: tilda
     webhook_path: /tilda
     tags: [landing]
@@ -134,6 +141,11 @@ webhooks:
       med: MedProj
     projectByUtmCampaign:
       camp: Camp Project
+    ignoreFields:
+      - TRANID
+      - _ym_uid
+      - FORMID
+      - COOKIES
     tagByUtmSource:
       src: Src Tag
     tagByTitle:

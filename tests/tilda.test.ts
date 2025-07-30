@@ -89,6 +89,18 @@ describe('tilda handler', () => {
     });
   });
 
+  it('ignores default extra fields', () => {
+    const extraBody = {
+      name: 'A',
+      TRANID: '1',
+      _ym_uid: '2',
+      FORMID: '3',
+      COOKIES: 'c',
+    } as any;
+    const params = extractTaskParams(extraBody, headers);
+    expect(params.fields).toEqual({ referer: headers.referer });
+  });
+
   it('uses default name when not provided', () => {
     const noNameBody = { email: 'a@b.com', phone: '123', formname: 'Form' };
     const params = extractTaskParams(noNameBody, headers);

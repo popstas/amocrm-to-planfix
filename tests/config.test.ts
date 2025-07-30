@@ -53,4 +53,21 @@ describe('config loader', () => {
     expect(tilda.tagByTitle['Прямой эфир']).toBe('Рег');
     expect(tilda.projectByTitle['Запись']).toBe('FormProj');
   });
+
+  it('loads ignoreFields defaults', () => {
+    const amo = config.webhooks[0] as any;
+    const tilda = config.webhooks.find(w => w.name === 'tilda') as any;
+    expect(amo.ignoreFields).toEqual([
+      'TRANID',
+      '_ym_uid',
+      'FORMID',
+      'COOKIES',
+    ]);
+    expect(tilda.ignoreFields).toEqual([
+      'TRANID',
+      '_ym_uid',
+      'FORMID',
+      'COOKIES',
+    ]);
+  });
 });
