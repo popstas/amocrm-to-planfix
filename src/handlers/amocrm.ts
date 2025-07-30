@@ -221,6 +221,11 @@ function extractTaskParams(lead, contacts, detailedContacts, baseUrl, managerEma
       if (norm === "utm_source") utm.utm_source = values.join(", ");
       if (norm === "utm_medium") utm.utm_medium = values.join(", ");
       if (norm === "utm_campaign") utm.utm_campaign = values.join(", ");
+
+      // telegram
+      if (/telegram|телеграм/i.test(name)) {
+        params.telegram = values.join(", ");
+      }
     }
   }
   Object.assign(fields, utm);
