@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyProjectByTag, applyProjectByPipeline, applyProjectByUtmMedium, applyProjectByUtmCampaign } from '../src/handlers/amocrm.ts';
+import { applyProjectByTag, applyProjectByPipeline, applyProjectByTitle, applyProjectByUtmMedium, applyProjectByUtmCampaign } from '../src/handlers/amocrm.ts';
 
 describe('applyProjectByTag', () => {
   it('sets project based on tag mapping', () => {
@@ -72,6 +72,29 @@ describe('applyProjectByPipeline', () => {
     const map = { Sales: 'SalesProj' };
     applyProjectByPipeline(params, map);
     expect(params.project).toBe('Old');
+  });
+});
+
+describe('applyProjectByTitle', () => {
+  it('sets project based on lead title', () => {
+    const params: any = {};
+    const map = { Lead: 'TitleProj' };
+    applyProjectByTitle(params, 'Lead created', map);
+    expect(params.project).toBe('TitleProj');
+  });
+
+  it('matches title case-insensitively', () => {
+    const params: any = {};
+    const map = { leAd: 'TitleProj' };
+    applyProjectByTitle(params, 'lead form', map);
+    expect(params.project).toBe('TitleProj');
+  });
+
+  it('leaves project when no title matches', () => {
+    const params: any = { project: 'Keep' };
+    const map = { abc: 'Proj' };
+    applyProjectByTitle(params, 'other', map);
+    expect(params.project).toBe('Keep');
   });
 });
 

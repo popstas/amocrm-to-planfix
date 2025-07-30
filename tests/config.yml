@@ -5,6 +5,8 @@ webhooks:
       tagX: Project X
     projectByPipeline:
       Sales: SalesProj
+    projectByTitle:
+      Lead: TitleProj
     projectByUtmMedium:
       med: MedProj
     projectByUtmCampaign:
@@ -28,6 +30,8 @@ webhooks:
       src: SrcTag
     tagByTitle:
       "Прямой эфир": "Рег"
+    projectByTitle:
+      "Запись": FormProj
 queue:
   max_attempts: 2
   start_delay: 1000
