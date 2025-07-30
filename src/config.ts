@@ -10,6 +10,7 @@ export interface WebhookItem {
   pipeline?: string;
   project?: string;
   leadSource?: string;
+  ignoreFields?: string[];
 }
 export interface QueueConfig { max_attempts?: number; start_delay?: number; }
 export interface PlanfixAgentConfig { token?: string; url?: string; }
@@ -31,6 +32,13 @@ const defaultPath = path.join(process.cwd(), 'data', 'config.yml');
 const configPath = process.env.CONFIG || defaultPath;
 
 export const config: Config = yaml.load(fs.readFileSync(configPath, 'utf8')) as Config;
+
+const DEFAULT_IGNORE_FIELDS = ['TRANID', '_ym_uid', 'FORMID', 'COOKIES'];
+for (const wh of config.webhooks) {
+  if ((wh.name === 'amocrm' || wh.name === 'tilda') && !wh.ignoreFields) {
+    wh.ignoreFields = DEFAULT_IGNORE_FIELDS;
+  }
+}
 
 export function getWebhookConfig(name: string): WebhookItem | undefined {
   return config.webhooks.find(w => w.name === name);

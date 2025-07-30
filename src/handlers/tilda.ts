@@ -14,6 +14,7 @@ export interface TildaConfig extends WebhookItem {
   projectByUtmSource?: Record<string, string>;
   projectByUtmMedium?: Record<string, string>;
   projectByUtmCampaign?: Record<string, string>;
+  ignoreFields?: string[];
 }
 
 const webhookConf = getWebhookConfig(webhookName) as TildaConfig;
@@ -117,8 +118,9 @@ export function extractTaskParams(body: any, headers: any): any {
     'telegram',
     'reflinkid',
     'userid',
-    'tranid',
-    'formid',
+    ...(
+      webhookConf?.ignoreFields ?? ['TRANID', '_ym_uid', 'FORMID', 'COOKIES']
+    ).map((v) => v.toLowerCase()),
   ]);
   for (const [key, value] of Object.entries(body)) {
     const keyLower = key.toLowerCase();
