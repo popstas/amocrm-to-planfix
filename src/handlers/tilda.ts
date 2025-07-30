@@ -10,6 +10,7 @@ export interface TildaConfig extends WebhookItem {
   leadSource?: string;
   tagByTitle?: Record<string, string>;
   tagByUtmSource?: Record<string, string>;
+  projectByTitle?: Record<string, string>;
   projectByUtmSource?: Record<string, string>;
   projectByUtmMedium?: Record<string, string>;
   projectByUtmCampaign?: Record<string, string>;
@@ -160,6 +161,17 @@ function appendTagsByTitle(taskParams: any, formTitle: string | undefined, conf 
   return taskParams;
 }
 
+function applyProjectByTitle(taskParams: any, formTitle: string | undefined, conf = webhookConf): any {
+  if (!formTitle || !conf?.projectByTitle) return taskParams;
+  for (const [title, project] of Object.entries(conf.projectByTitle)) {
+    if (formTitle.toLowerCase().includes(title.toLowerCase())) {
+      taskParams.project = project;
+      break;
+    }
+  }
+  return taskParams;
+}
+
 function applyProjectByUtmSource(taskParams: any, conf = webhookConf): any {
   const utm = taskParams.fields?.utm_source;
   if (!utm || !conf?.projectByUtmSource) return taskParams;
@@ -204,6 +216,7 @@ export async function processWebhook({ headers = {}, body }: { headers: any; bod
   appendDefaults(taskParams, webhookConf);
   const formTitle: string | undefined = body.formname || body.FORMNAME;
   appendTagsByTitle(taskParams, formTitle, webhookConf);
+  applyProjectByTitle(taskParams, formTitle, webhookConf);
   appendTagByUtmSource(taskParams, webhookConf);
   applyProjectByUtmSource(taskParams, webhookConf);
   applyProjectByUtmMedium(taskParams, webhookConf);

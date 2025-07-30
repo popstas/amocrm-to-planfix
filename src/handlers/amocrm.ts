@@ -16,6 +16,7 @@ export interface AmocrmConfig extends WebhookItem {
   token?: string;
   projectByTag?: Record<string, string>;
   projectByPipeline?: Record<string, string>;
+  projectByTitle?: Record<string, string>;
   projectByUtmMedium?: Record<string, string>;
   projectByUtmCampaign?: Record<string, string>;
 }
@@ -260,6 +261,21 @@ export function applyProjectByPipeline(taskParams, projectByPipeline) {
   return taskParams;
 }
 
+export function applyProjectByTitle(
+  taskParams: any,
+  title: string | undefined,
+  projectByTitle?: Record<string, string>
+) {
+  if (!projectByTitle || !title) return taskParams;
+  for (const [key, project] of Object.entries(projectByTitle)) {
+    if (title.toLowerCase().includes(key.toLowerCase())) {
+      taskParams.project = project;
+      break;
+    }
+  }
+  return taskParams;
+}
+
 export function applyProjectByUtmMedium(taskParams, projectByUtmMedium) {
   const medium = taskParams.fields?.utm_medium;
   if (!projectByUtmMedium || !medium) return taskParams;
@@ -331,6 +347,7 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   appendDefaults(taskParams, webhookConf);
   applyProjectByTag(taskParams, webhookConf?.projectByTag);
   applyProjectByPipeline(taskParams, webhookConf?.projectByPipeline);
+  applyProjectByTitle(taskParams, lead.name, webhookConf?.projectByTitle);
   applyProjectByUtmMedium(taskParams, webhookConf?.projectByUtmMedium);
   applyProjectByUtmCampaign(taskParams, webhookConf?.projectByUtmCampaign);
 

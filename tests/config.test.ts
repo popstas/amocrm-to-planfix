@@ -27,6 +27,11 @@ describe('config loader', () => {
     expect(amo.projectByPipeline.Sales).toBe('SalesProj');
   });
 
+  it('loads projectByTitle config', () => {
+    const amo = config.webhooks[0] as any;
+    expect(amo.projectByTitle.Lead).toBe('TitleProj');
+  });
+
   it('loads projectByUtmMedium config', () => {
     const amo = config.webhooks[0] as any;
     const tilda = config.webhooks.find(w => w.name === 'tilda') as any;
@@ -46,5 +51,6 @@ describe('config loader', () => {
     expect(tilda.projectByUtmSource.src).toBe('SrcProj');
     expect(tilda.tagByUtmSource.src).toBe('SrcTag');
     expect(tilda.tagByTitle['Прямой эфир']).toBe('Рег');
+    expect(tilda.projectByTitle['Запись']).toBe('FormProj');
   });
 });

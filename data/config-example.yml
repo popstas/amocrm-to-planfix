@@ -13,6 +13,8 @@ webhooks:
       Sales: Website Sales
       Support: Support Project
       1000x: 1000x
+    projectByTitle:
+      "Запись": FormProj
     projectByUtmMedium:
       blog: Blog Project Medium
     projectByUtmCampaign:
@@ -39,9 +41,11 @@ webhooks:
       src: Src Tag
     tagByTitle:
       "Прямой эфир": "Рег"
-queue:
-  max_attempts: 12
-  start_delay: 5
+    projectByTitle:
+      "Запись": FormProj
+  queue:
+    max_attempts: 12
+    start_delay: 5
 planfix_agent:
   token: asd
   url: http://example.com

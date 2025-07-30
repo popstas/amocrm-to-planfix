@@ -18,7 +18,7 @@ const body = {
   userId: '1751020344324579',
   tranid: '7807982:7606836802',
   formid: 'form1069343426',
-  formname: 'Запись эфира'
+  formname: 'Базовая форма'
 };
 
 const expected = {
@@ -26,10 +26,10 @@ const expected = {
   name: 'John Doe Joe',
   email: 'john.doe.joe@example.com',
   phone: '+7 (555) 555-55-55',
-  description: 'Поля:\nreferer: https://example.com/form-page-01\nformname: Запись эфира',
+  description: 'Поля:\nreferer: https://example.com/form-page-01\nformname: Базовая форма',
   fields: {
     referer: 'https://example.com/form-page-01',
-    formname: 'Запись эфира',
+    formname: 'Базовая форма',
   }
 };
 
@@ -58,6 +58,12 @@ describe('tilda handler', () => {
     const matchBody = { name: 'Test', FORMNAME: 'Прямой эфир 16.07' } as any;
     const res = await processWebhook({ headers, body: matchBody });
     expect(res.taskParams.tags).toEqual(['landing', 'Рег']);
+  });
+
+  it('sets project based on form title', async () => {
+    const matchBody = { name: 'Test', formname: 'Запись эфира' } as any;
+    const res = await processWebhook({ headers, body: matchBody });
+    expect(res.taskParams.project).toBe('FormProj');
   });
 
   it('handles capitalized field names and telegram field', () => {
