@@ -4,12 +4,14 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import { addWebhook } from './queue.js';
-import { config } from './config.js';
+import fs from 'fs';
+import { loadConfig, configPath } from './config.js';
 import { fileURLToPath } from 'url';
 
 function validateTargetConfig() {
-  const url = config.planfix_agent?.url;
-  const token = config.planfix_agent?.token;
+  const cfg = loadConfig();
+  const url = cfg.planfix_agent?.url;
+  const token = cfg.planfix_agent?.token;
   if (!url || !token) {
     console.error('Missing planfix_agent.url or planfix_agent.token');
     process.exit(1);
@@ -28,6 +30,7 @@ app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'AMOCRM to Planfix webhook server is running' });
 });
 
+const config = loadConfig();
 for (const wh of config.webhooks || []) {
   const route = wh.webhook_path.startsWith('/') ? wh.webhook_path : `/${wh.webhook_path}`;
   console.log(`Registering webhook: ${wh.name} at ${route}`)
@@ -45,6 +48,11 @@ for (const wh of config.webhooks || []) {
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ success: false, error: 'Internal server error', message: err.message });
+});
+
+fs.watchFile(configPath, () => {
+  console.log('Config file changed, reloading');
+  loadConfig();
 });
 
 const filename = fileURLToPath(import.meta.url);

@@ -28,9 +28,16 @@ export interface Config {
 }
 
 const defaultPath = path.join(process.cwd(), 'data', 'config.yml');
-const configPath = process.env.CONFIG || defaultPath;
+export const configPath = process.env.CONFIG || defaultPath;
 
-export const config: Config = yaml.load(fs.readFileSync(configPath, 'utf8')) as Config;
+export let config: Config;
+
+export function loadConfig(): Config {
+  config = yaml.load(fs.readFileSync(configPath, 'utf8')) as Config;
+  return config;
+}
+
+loadConfig();
 
 export function getWebhookConfig(name: string): WebhookItem | undefined {
   return config.webhooks.find(w => w.name === name);

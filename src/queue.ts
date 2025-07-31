@@ -2,14 +2,19 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import Database from 'better-sqlite3';
-import { config } from './config.js';
+import { loadConfig } from './config.js';
 import type { ProcessWebhook } from './handlers/types.js';
 
 const DB_DIR = path.join(process.cwd(), 'data');
 const DB_PATH = path.join(DB_DIR, 'webhooks.db');
 
-const MAX_ATTEMPTS = config.queue?.max_attempts ?? 12;
-const DELAY = config.queue?.start_delay ?? 1000;
+function getMaxAttempts() {
+  return loadConfig().queue?.max_attempts ?? 12;
+}
+
+function getDelay() {
+  return loadConfig().queue?.start_delay ?? 1000;
+}
 
 let nextTimer: NodeJS.Timeout | null = null;
 
@@ -89,7 +94,7 @@ function scheduleNext() {
   if (nextTimer) clearTimeout(nextTimer);
   const row = db
     .prepare('SELECT id, next_attempt FROM queue WHERE attempts < ? ORDER BY next_attempt LIMIT 1')
-    .get(MAX_ATTEMPTS);
+    .get(getMaxAttempts());
   if (row) {
     const delay = Math.max(0, row.next_attempt - Date.now());
     console.log(`Waiting ${Math.round(delay / 1000)} seconds before processing row ${row.id}...`);
@@ -130,7 +135,7 @@ async function handleRow(row: any) {
     db.prepare('DELETE FROM queue WHERE id=?').run(row.id);
   } catch (err: any) {
     const attempts = row.attempts + 1;
-    const sleepTime = DELAY * row.attempts ** 3 * 2;
+    const sleepTime = getDelay() * row.attempts ** 3 * 2;
     const nextAttempt = Date.now() + sleepTime;
     console.error(`Error processing row ${row.id}:`, err.message?.replace(/\n/g, ' '), ", row: ", JSON.stringify(row));
 
@@ -149,18 +154,18 @@ export async function processQueue() {
   if (processing) return;
   processing = true;
   try {
-    const queueSize = db.prepare('SELECT COUNT(*) as count FROM queue WHERE attempts < ?').get(MAX_ATTEMPTS).count;
+    const queueSize = db.prepare('SELECT COUNT(*) as count FROM queue WHERE attempts < ?').get(getMaxAttempts()).count;
     if (queueSize > 1) {
       console.log(`Queue size: ${queueSize}`);
     }
     let row = db
       .prepare('SELECT * FROM queue WHERE attempts < ? AND next_attempt <= ? ORDER BY attempts, created_at LIMIT 1')
-      .get(MAX_ATTEMPTS, Date.now());
+      .get(getMaxAttempts(), Date.now());
     while (row) {
       await handleRow(row);
       row = db
         .prepare('SELECT * FROM queue WHERE attempts < ? AND next_attempt <= ? ORDER BY attempts, created_at LIMIT 1')
-        .get(MAX_ATTEMPTS, Date.now());
+        .get(getMaxAttempts(), Date.now());
     }
   } finally {
     processing = false;
