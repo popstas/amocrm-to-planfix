@@ -10,7 +10,9 @@ export interface ManychatConfig extends WebhookItem {
   leadSource?: string;
 }
 
-const webhookConf = getWebhookConfig(webhookName) as ManychatConfig;
+function webhookConf(): ManychatConfig | undefined {
+  return getWebhookConfig(webhookName) as ManychatConfig;
+}
 
 export function extractLeadDetails(body: any): { lead: any } {
   return { lead: body.contact || {} };
@@ -18,7 +20,7 @@ export function extractLeadDetails(body: any): { lead: any } {
 
 export function extractTaskParams(lead: any): any {
   const contact = lead || {};
-  const params: any = { leadSource: webhookConf?.leadSource || 'ManyChat' };
+  const params: any = { leadSource: webhookConf()?.leadSource || 'ManyChat' };
 
   const name = contact.name || contact.ig_username || (contact.ig_id ? `Instagram id ${contact.ig_id}` : undefined);
   if (name) params.name = name;
@@ -52,7 +54,7 @@ export function extractTaskParams(lead: any): any {
 export async function processWebhook({ headers, body }: { headers: any; body: any }): Promise<ProcessWebhookResult> {
   const { lead } = extractLeadDetails(body);
   const taskParams = extractTaskParams(lead);
-  appendDefaults(taskParams, webhookConf);
+  appendDefaults(taskParams, webhookConf());
 
   const task = await sendToTargets(taskParams, webhookName);
 

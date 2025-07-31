@@ -17,7 +17,9 @@ export interface TildaConfig extends WebhookItem {
   ignoreFields?: string[];
 }
 
-const webhookConf = getWebhookConfig(webhookName) as TildaConfig;
+function webhookConf(): TildaConfig | undefined {
+  return getWebhookConfig(webhookName) as TildaConfig;
+}
 
 function findField(
   body: Record<string, any>,
@@ -32,7 +34,7 @@ function findField(
 }
 
 export function extractTaskParams(body: any, headers: any): any {
-  const params: any = { leadSource: webhookConf?.leadSource || 'Tilda' };
+  const params: any = { leadSource: webhookConf()?.leadSource || 'Tilda' };
 
   const recognized = new Set<string>();
 
@@ -149,7 +151,7 @@ function isTestWebhook(body: any): boolean {
   return body.test === 'test';
 }
 
-function appendTagsByTitle(taskParams: any, formTitle: string | undefined, conf = webhookConf): any {
+function appendTagsByTitle(taskParams: any, formTitle: string | undefined, conf = webhookConf()): any {
   if (!formTitle || !conf?.tagByTitle) return taskParams;
   const tags = new Set<string>(taskParams.tags || []);
   for (const [title, tag] of Object.entries(conf.tagByTitle)) {
@@ -163,7 +165,7 @@ function appendTagsByTitle(taskParams: any, formTitle: string | undefined, conf 
   return taskParams;
 }
 
-function applyProjectByTitle(taskParams: any, formTitle: string | undefined, conf = webhookConf): any {
+function applyProjectByTitle(taskParams: any, formTitle: string | undefined, conf = webhookConf()): any {
   if (!formTitle || !conf?.projectByTitle) return taskParams;
   for (const [title, project] of Object.entries(conf.projectByTitle)) {
     if (formTitle.toLowerCase().includes(title.toLowerCase())) {
@@ -174,7 +176,7 @@ function applyProjectByTitle(taskParams: any, formTitle: string | undefined, con
   return taskParams;
 }
 
-function applyProjectByUtmSource(taskParams: any, conf = webhookConf): any {
+function applyProjectByUtmSource(taskParams: any, conf = webhookConf()): any {
   const utm = taskParams.fields?.utm_source;
   if (!utm || !conf?.projectByUtmSource) return taskParams;
   const mapped = matchByConfig(conf.projectByUtmSource, utm);
@@ -182,7 +184,7 @@ function applyProjectByUtmSource(taskParams: any, conf = webhookConf): any {
   return taskParams;
 }
 
-function applyProjectByUtmMedium(taskParams: any, conf = webhookConf): any {
+function applyProjectByUtmMedium(taskParams: any, conf = webhookConf()): any {
   const medium = taskParams.fields?.utm_medium;
   if (!medium || !conf?.projectByUtmMedium) return taskParams;
   const mapped = matchByConfig(conf.projectByUtmMedium, medium);
@@ -190,7 +192,7 @@ function applyProjectByUtmMedium(taskParams: any, conf = webhookConf): any {
   return taskParams;
 }
 
-function applyProjectByUtmCampaign(taskParams: any, conf = webhookConf): any {
+function applyProjectByUtmCampaign(taskParams: any, conf = webhookConf()): any {
   const campaign = taskParams.fields?.utm_campaign;
   if (!campaign || !conf?.projectByUtmCampaign) return taskParams;
   const mapped = includesByConfig(conf.projectByUtmCampaign, campaign);
@@ -198,7 +200,7 @@ function applyProjectByUtmCampaign(taskParams: any, conf = webhookConf): any {
   return taskParams;
 }
 
-function appendTagByUtmSource(taskParams: any, conf = webhookConf): any {
+function appendTagByUtmSource(taskParams: any, conf = webhookConf()): any {
   const utm = taskParams.fields?.utm_source;
   if (!utm || !conf?.tagByUtmSource) return taskParams;
   const mapped = matchByConfig(conf.tagByUtmSource, utm);
@@ -215,14 +217,14 @@ export async function processWebhook({ headers = {}, body }: { headers: any; bod
     return { body, lead: {}, taskParams: {}, task: {} };
   }
   const taskParams = extractTaskParams(body, headers);
-  appendDefaults(taskParams, webhookConf);
+  appendDefaults(taskParams, webhookConf());
   const formTitle: string | undefined = body.formname || body.FORMNAME;
-  appendTagsByTitle(taskParams, formTitle, webhookConf);
-  applyProjectByTitle(taskParams, formTitle, webhookConf);
-  appendTagByUtmSource(taskParams, webhookConf);
-  applyProjectByUtmSource(taskParams, webhookConf);
-  applyProjectByUtmMedium(taskParams, webhookConf);
-  applyProjectByUtmCampaign(taskParams, webhookConf);
+  appendTagsByTitle(taskParams, formTitle, webhookConf());
+  applyProjectByTitle(taskParams, formTitle, webhookConf());
+  appendTagByUtmSource(taskParams, webhookConf());
+  applyProjectByUtmSource(taskParams, webhookConf());
+  applyProjectByUtmMedium(taskParams, webhookConf());
+  applyProjectByUtmCampaign(taskParams, webhookConf());
   const task = await sendToTargets(taskParams, webhookName);
   return { body, lead: body, taskParams, task };
 }

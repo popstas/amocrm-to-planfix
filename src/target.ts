@@ -1,9 +1,10 @@
 import fetch from 'node-fetch';
-import { config } from './config.js';
+import { loadConfig } from './config.js';
 
 export async function createPlanfixTask(taskParams: any) {
-  const agentToken = config.planfix_agent?.token;
-  const url = config.planfix_agent?.url;
+  const cfg = loadConfig();
+  const agentToken = cfg.planfix_agent?.token;
+  const url = cfg.planfix_agent?.url;
   if (!agentToken) {
     throw new Error('planfix_agent.token is required');
   }
@@ -36,8 +37,9 @@ export async function sendTelegramMessage(
   webhookName = '',
   task: any = null
 ) {
-  if (!config.telegram) return null;
-  const { bot_token: botToken, chat_id: chatId } = config.telegram;
+  const cfg = loadConfig();
+  if (!cfg.telegram) return null;
+  const { bot_token: botToken, chat_id: chatId } = cfg.telegram;
   if (!botToken || !chatId) return null;
 
   let text = (taskParams.description || '').trim();

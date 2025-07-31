@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { ProxyAgent } from 'proxy-agent';
 import fs from 'fs';
 import path from 'path';
-import { config, getWebhookConfig } from '../config.js';
+import { loadConfig, getWebhookConfig } from '../config.js';
 import { sendToTargets } from '../target.js';
 import { appendDefaults, matchByConfig, normalizeKey, includesByConfig } from './utils.js';
 import type { WebhookItem } from '../config.js';
@@ -22,7 +22,9 @@ export interface AmocrmConfig extends WebhookItem {
   ignoreFields?: string[];
 }
 
-const webhookConf = getWebhookConfig(webhookName) as AmocrmConfig;
+function webhookConf(): AmocrmConfig | undefined {
+  return getWebhookConfig(webhookName) as AmocrmConfig;
+}
 
 async function amoGet(baseUrl, path, token) {
   console.log(`amoCRM request: ${baseUrl}${path}`);
@@ -33,7 +35,7 @@ async function amoGet(baseUrl, path, token) {
       "Content-Type": "application/json",
     },
   };
-  const proxy = config.proxy_url;
+  const proxy = loadConfig().proxy_url;
   if (proxy) {
     options.agent = new ProxyAgent(proxy);
   }
@@ -314,8 +316,8 @@ export function applyProjectByUtmCampaign(taskParams, projectByUtmCampaign) {
 }
 
 async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebhookResult> {
-  const token = webhookConf?.token;
-  const webhookDelay = (config.queue?.start_delay ?? 5) * 1000;
+  const token = webhookConf()?.token;
+  const webhookDelay = (loadConfig().queue?.start_delay ?? 5) * 1000;
 
   if (!token) throw new Error("AMOCRM access token is required");
 
@@ -365,12 +367,12 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
     taskParams.pipeline = pipelineName;
   }
 
-  appendDefaults(taskParams, webhookConf);
-  applyProjectByTag(taskParams, webhookConf?.projectByTag);
-  applyProjectByPipeline(taskParams, webhookConf?.projectByPipeline);
-  applyProjectByTitle(taskParams, lead.name, webhookConf?.projectByTitle);
-  applyProjectByUtmMedium(taskParams, webhookConf?.projectByUtmMedium);
-  applyProjectByUtmCampaign(taskParams, webhookConf?.projectByUtmCampaign);
+  appendDefaults(taskParams, webhookConf());
+  applyProjectByTag(taskParams, webhookConf()?.projectByTag);
+  applyProjectByPipeline(taskParams, webhookConf()?.projectByPipeline);
+  applyProjectByTitle(taskParams, lead.name, webhookConf()?.projectByTitle);
+  applyProjectByUtmMedium(taskParams, webhookConf()?.projectByUtmMedium);
+  applyProjectByUtmCampaign(taskParams, webhookConf()?.projectByUtmCampaign);
 
   if (deleted) {
     console.error(`Lead ${leadId} deleted`);

@@ -29,9 +29,16 @@ export interface Config {
 }
 
 const defaultPath = path.join(process.cwd(), 'data', 'config.yml');
-const configPath = process.env.CONFIG || defaultPath;
+export const configPath = process.env.CONFIG || defaultPath;
 
-export const config: Config = yaml.load(fs.readFileSync(configPath, 'utf8')) as Config;
+export let config: Config;
+
+export function loadConfig(): Config {
+  config = yaml.load(fs.readFileSync(configPath, 'utf8')) as Config;
+  return config;
+}
+
+loadConfig();
 
 const DEFAULT_IGNORE_FIELDS = ['TRANID', '_ym_uid', 'FORMID', 'COOKIES'];
 for (const wh of config.webhooks) {
