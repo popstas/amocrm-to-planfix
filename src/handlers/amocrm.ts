@@ -382,17 +382,19 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   if (contacts.length === 0) {
     console.error(`Failed to retrieve lead details for lead ID: ${leadId}`);
     // create task first, then waiting for contacts appears 
-    if (queueRow.attempts > 0) {
+    if (queueRow?.attempts > 0) {
       throw new Error(`Failed to retrieve lead details for lead ID: ${leadId}`);
     }
   }
 
 
   // Create task in Planfix
-  const task = await sendToTargets(taskParams, webhookName);
   if (contacts.length === 0) {
-    throw new Error(`Lead ${leadId} has no contacts`);
+    if (!taskParams.tags) taskParams.tags = [];
+    if (!taskParams.tags.includes('error')) taskParams.tags.push('error');
+    // throw new Error(`Lead ${leadId} has no contacts`);
   }
+  const task = await sendToTargets(taskParams, webhookName);
 
   return { body, lead, taskParams, task };
 }

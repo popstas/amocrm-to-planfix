@@ -72,8 +72,12 @@ export async function sendTelegramMessage(
   if (task?.url) {
     text = `${text}\n\nПланфикс:\n${task.url}`;
   }
+  else {
+    if (!taskParams.tags) taskParams.tags = [];
+    if (!taskParams.tags.includes('error')) taskParams.tags.push('error');
+  }
 
-  if (!task && errorText) {
+  if (taskParams.tags.includes('error') && errorText) {
     text = `${text}\n\n${errorText}`;
   }
 
