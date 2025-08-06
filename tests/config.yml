@@ -42,3 +42,4 @@ telegram:
   bot_name: example_bot
   bot_token: token
   chat_id: example_chat
+  error_text: Test error

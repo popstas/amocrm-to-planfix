@@ -53,4 +53,5 @@ telegram:
   bot_name: example_bot
   bot_token: token
   chat_id: 123456
+  error_text: "Error creating task"
 proxy_url: http://host:port
