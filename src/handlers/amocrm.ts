@@ -392,7 +392,9 @@ async function processWebhook({ headers, body }, queueRow): Promise<ProcessWebho
   if (contacts.length === 0) {
     if (!taskParams.tags) taskParams.tags = [];
     if (!taskParams.tags.includes('error')) taskParams.tags.push('error');
-    // throw new Error(`Lead ${leadId} has no contacts`);
+    if (queueRow?.attempts < (loadConfig().queue?.max_attempts ?? 12) - 1) {
+      throw new Error(`Lead ${leadId} has no contacts`);
+    }
   }
   const task = await sendToTargets(taskParams, webhookName);
 

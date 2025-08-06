@@ -129,13 +129,16 @@ async function handleRow(row: any) {
       console.log('result:', response.task.url);
     } else {
       console.error('Failed to create task');
+      if (response?.task && (response.task as { error?: string })?.error) {
+        console.error((response.task as { error?: string })?.error);
+      }
     }
     db.prepare('INSERT INTO processed (checksum, webhook, body, created_at, processed_at, attempts, response) VALUES (?,?,?,?,?,?,?)')
       .run(row.checksum, row.webhook, row.body, row.created_at, Date.now(), row.attempts + 1, JSON.stringify(response));
     db.prepare('DELETE FROM queue WHERE id=?').run(row.id);
   } catch (err: any) {
     const attempts = row.attempts + 1;
-    const sleepTime = getDelay() * row.attempts ** 3 * 2;
+    const sleepTime = getDelay() * attempts ** 3 * 2;
     const nextAttempt = Date.now() + sleepTime;
     console.error(`Error processing row ${row.id}:`, err.message?.replace(/\n/g, ' '), ", row: ", JSON.stringify(row));
 
