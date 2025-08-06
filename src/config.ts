@@ -18,6 +18,7 @@ export interface TelegramConfig {
   bot_name: string;
   bot_token: string;
   chat_id: string;
+  error_text?: string;
 }
 
 export interface Config {

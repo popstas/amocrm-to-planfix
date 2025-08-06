@@ -39,8 +39,13 @@ export async function sendTelegramMessage(
 ) {
   const cfg = loadConfig();
   if (!cfg.telegram) return null;
-  const { bot_token: botToken, chat_id: chatId } = cfg.telegram;
+  const { bot_token: botToken, chat_id: chatId, error_text: errorText } = cfg.telegram;
   if (!botToken || !chatId) return null;
+
+  if (!task) {
+    if (!Array.isArray(taskParams.tags)) taskParams.tags = [];
+    if (!taskParams.tags.includes('error')) taskParams.tags.push('error');
+  }
 
   let text = (taskParams.description || '').trim();
   if (!text) {
@@ -66,6 +71,10 @@ export async function sendTelegramMessage(
 
   if (task?.url) {
     text = `${text}\n\nПланфикс:\n${task.url}`;
+  }
+
+  if (!task && errorText) {
+    text = `${text}\n\n${errorText}`;
   }
 
   if (Array.isArray(taskParams.tags) && taskParams.tags.length) {

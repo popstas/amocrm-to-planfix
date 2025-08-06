@@ -102,6 +102,9 @@ For Tilda webhooks you can define `tagByTitle` to add a tag when the form title 
 
 Both handlers also support an `ignoreFields` option listing form fields that should be skipped when building the task description. By default the fields `TRANID`, `_ym_uid`, `FORMID` and `COOKIES` are ignored.
 
+Telegram notifications are configured in the `telegram` section with `bot_name`, `bot_token` and `chat_id`.
+You can also set `error_text` to append a message when a Planfix task is not created.
+
 Example:
 
 ```yml
@@ -162,6 +165,7 @@ telegram:
   bot_name: example_bot
   bot_token: token
   chat_id: 123456
+  error_text: PF task failed
 ```
 
 ## Environment Variables
