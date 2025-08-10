@@ -32,7 +32,7 @@ export interface Config {
 const defaultPath = path.join(process.cwd(), 'data', 'config.yml');
 export const configPath = process.env.CONFIG || defaultPath;
 
-export let config: Config = loadConfig();
+export let config: Config;
 
 export function loadConfig(): Config {
   const cfg = yaml.load(fs.readFileSync(configPath, 'utf8')) as Config;
@@ -45,6 +45,9 @@ export function loadConfig(): Config {
   config = cfg;
   return cfg;
 }
+
+// Initialize config at module load
+config = loadConfig();
 
 export function getWebhookConfig(name: string): WebhookItem | undefined {
   return config.webhooks.find(w => w.name === name);
