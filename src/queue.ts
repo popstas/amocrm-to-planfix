@@ -47,11 +47,11 @@ CREATE TABLE IF NOT EXISTS processed (
 
 db.exec(initSql);
 
-const columns = db.prepare('PRAGMA table_info(queue)').all();
-if (!columns.find(c => c.name === 'webhook')) {
+const columns = db.prepare('PRAGMA table_info(queue)').all() as { name: string }[];
+if (!columns.find((c: { name: string }) => c.name === 'webhook')) {
   db.exec('ALTER TABLE queue ADD COLUMN webhook TEXT');
 }
-if (!columns.find(c => c.name === 'next_attempt')) {
+if (!columns.find((c: { name: string }) => c.name === 'next_attempt')) {
   db.exec('ALTER TABLE queue ADD COLUMN next_attempt INTEGER DEFAULT 0');
 }
 

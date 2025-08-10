@@ -121,7 +121,7 @@ export function extractTaskParams(body: any, headers: any): any {
     'reflinkid',
     'userid',
     ...(
-      webhookConf?.ignoreFields ?? ['TRANID', '_ym_uid', 'FORMID', 'COOKIES']
+      webhookConf()?.ignoreFields ?? ['TRANID', '_ym_uid', 'FORMID', 'COOKIES']
     ).map((v) => v.toLowerCase()),
   ]);
   for (const [key, value] of Object.entries(body)) {

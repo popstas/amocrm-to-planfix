@@ -14,7 +14,8 @@ export function write(level: string, messages: string[]) {
   try {
     fs.appendFileSync(LOG_PATH, line);
   } catch (err) {
-    process.stderr.write(`Failed to write log: ${err.message}\n`);
+    const msg = err instanceof Error ? err.message : String(err);
+    process.stderr.write(`Failed to write log: ${msg}\n`);
   }
 }
 
