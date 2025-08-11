@@ -44,7 +44,7 @@ export async function sendTelegramMessage(
 
   if (!task) {
     if (!Array.isArray(taskParams.tags)) taskParams.tags = [];
-    if (!taskParams.tags.includes('error')) taskParams.tags.push('error');
+    if (!taskParams.tags?.includes('error')) taskParams.tags.push('error');
   }
 
   let text = (taskParams.description || '').trim();
@@ -69,11 +69,11 @@ export async function sendTelegramMessage(
     text = `${webhookName}:\n\n${text}`;
   }
 
+  if (!taskParams.tags) taskParams.tags = [];
   if (task?.url) {
     text = `${text}\n\nПланфикс:\n${task.url}`;
   }
   else {
-    if (!taskParams.tags) taskParams.tags = [];
     if (!taskParams.tags.includes('error')) taskParams.tags.push('error');
   }
 
@@ -105,7 +105,12 @@ export async function sendToTargets(taskParams: any, webhookName = '') {
   try {
     await sendTelegramMessage(taskParams, webhookName, task);
   } catch (e: any) {
-    console.error('Failed to send telegram message:', e.message);
+    // Output full stacktrace for easier debugging
+    if (e && e.stack) {
+      console.error('Failed to send telegram message:', e.stack);
+    } else {
+      console.error('Failed to send telegram message:', e);
+    }
   }
   return task;
 }
