@@ -3,7 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import Database from 'better-sqlite3';
 import { loadConfig } from './config.js';
-import type { ProcessWebhook } from './handlers/types.js';
+import type { ProcessWebhook } from './types/handlers.js';
 
 const DB_DIR = path.join(process.cwd(), 'data');
 const DB_PATH = path.join(DB_DIR, 'webhooks.db');

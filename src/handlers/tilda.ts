@@ -1,7 +1,7 @@
 import { sendToTargets } from '../target.js';
 import { getWebhookConfig } from '../config.js';
-import { appendDefaults, matchByConfig, includesByConfig } from './utils.js';
-import type { ProcessWebhookResult } from './types.js';
+import { appendDefaults, matchByConfig, includesByConfig } from '../utils.js';
+import type { ProcessWebhookResult } from '../types/handlers.js';
 import type { WebhookItem } from '../config.js';
 
 export const webhookName = 'tilda';
