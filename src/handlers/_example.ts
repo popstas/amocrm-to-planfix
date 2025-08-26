@@ -1,7 +1,7 @@
 import { sendToTargets } from '../target.js';
 import { getWebhookConfig } from '../config.js';
-import { appendDefaults } from './utils.js';
-import type { ProcessWebhookResult } from './types.js';
+import { appendDefaults } from '../utils.js';
+import type { ProcessWebhookResult } from '../types/handlers.js';
 import type { WebhookItem } from '../config.js';
 
 export const webhookName = '_example';

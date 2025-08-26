@@ -5,9 +5,9 @@ import fs from 'fs';
 import path from 'path';
 import { loadConfig, getWebhookConfig } from '../config.js';
 import { sendToTargets } from '../target.js';
-import { appendDefaults, matchByConfig, normalizeKey, includesByConfig } from './utils.js';
+import { appendDefaults, matchByConfig, normalizeKey, includesByConfig } from '../utils.js';
 import type { WebhookItem } from '../config.js';
-import type { ProcessWebhookResult } from './types.js';
+import type { ProcessWebhookResult } from '../types/handlers.js';
 import { fileURLToPath } from 'url';
 
 export const webhookName = 'amocrm';

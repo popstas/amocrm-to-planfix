@@ -8,3 +8,4 @@ export interface ProcessWebhookResult {
 export interface ProcessWebhook {
   (input: { headers: any; body: any }, row?: any): Promise<ProcessWebhookResult>;
 }
+

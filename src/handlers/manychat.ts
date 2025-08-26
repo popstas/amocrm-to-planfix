@@ -1,8 +1,8 @@
 import { getWebhookConfig } from '../config.js';
 import { sendToTargets } from '../target.js';
-import { appendDefaults } from './utils.js';
+import { appendDefaults } from '../utils.js';
 import type { WebhookItem } from '../config.js';
-import type { ProcessWebhookResult } from './types.js';
+import type { ProcessWebhookResult } from '../types/handlers.js';
 
 export const webhookName = 'manychat';
 
